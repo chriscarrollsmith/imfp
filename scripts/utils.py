@@ -7,7 +7,7 @@ import pandas as pd
 from ratelimiter import RateLimiter
 from pkg_resources import get_distribution
 
-def _imf_rate_limited(imf_rate_limit):
+def _rate_limited(rate_limit):
     """
     (Internal) Decorator function for rate limiting the decorated function.
 
@@ -21,17 +21,14 @@ def _imf_rate_limited(imf_rate_limit):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            with imf_rate_limit:
+            with rate_limit:
                 return func(*args, **kwargs)
         return wrapper
     return decorator
 
 
-imf_rate_limit = RateLimiter(max_calls=5, period=5)
-
-
-@_imf_rate_limited(rate_limit)
-def _imf_download_parse(URL, times=3):
+@_rate_limited(rate_limit = RateLimiter(max_calls=5, period=5))
+def _download_parse(URL, times=3):
     """
     (Internal) Download and parse JSON content from a URL with rate limiting and retries.
 
@@ -52,7 +49,10 @@ def _imf_download_parse(URL, times=3):
     if app_name:
         app_name = app_name[:255]
     else:
-        app_name = f'imfr/{get_distribution("imfr").version}'
+        try:
+            app_name = f'imfPy/{get_distribution("imfPy").version}'
+        except:
+            app_name = 'imfPy'
 
     headers = {'Accept': 'application/json', 'User-Agent': app_name}
     for _ in range(times):
@@ -61,7 +61,7 @@ def _imf_download_parse(URL, times=3):
         status = response.status_code
 
         if ('<!DOCTYPE HTML PUBLIC' in content or
-            '<!DOCTYPE html in content or
+            '<!DOCTYPE html in content' in content or
             '<string xmlns="http://schemas.m' in content or
             '<html xmlns=' in content):
             err_message = (f"API request failed. URL: '{URL}', Status: '{status}', "
@@ -107,3 +107,40 @@ def _imf_dimensions(database_id, times=3, inputs_only=True):
         result_df = param_code_df.merge(codelist_df, on='code', how='outer')
 
     return result_df
+
+
+def _imf_metadata(URL, times=3):
+    """
+    (Internal) Access metadata for a dataset.
+
+    Args:
+        URL (str): The URL used to request metadata.
+        times (int, optional): Maximum number of requests to attempt. Defaults to 3.
+
+    Returns:
+        dict: A dictionary containing the metadata information.
+
+    Raises:
+        ValueError: If the URL is not provided.
+
+    Examples:
+        # Find Primary Commodity Price System database metadata
+        metadata = imf_metadata("http://dataservices.imf.org/REST/SDMX_JSON.svc/GenericMetadata/PCPS/A..?start_year=2020")
+    """
+
+    if not URL:
+        raise ValueError("Must supply URL.")
+
+    URL = URL.replace("CompactData", "GenericMetadata")
+    raw_dl = _download_parse(URL, times=times)
+
+    output = {
+        "XMLschema": raw_dl["GenericMetadata"]["@xmlns:xsd"],
+        "message": raw_dl["GenericMetadata"]["@xsi:schemaLocation"],
+        "language": raw_dl["GenericMetadata"]["Header"]["Sender"]["Name"]["@xml:lang"],
+        "timestamp": raw_dl["GenericMetadata"]["Header"]["Prepared"],
+        "custodian": raw_dl["GenericMetadata"]["Header"]["Sender"]["Name"]["#text"],
+        "custodian_url": raw_dl["GenericMetadata"]["Header"]["Sender"]["Contact"]["URI"],
+        "custodian_telephone": raw_dl["GenericMetadata"]["Header"]["Sender"]["Contact"]["Telephone"]
+    }
+    return output
