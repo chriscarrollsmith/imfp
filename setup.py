@@ -11,9 +11,9 @@ setuptools.setup(
     description = "Python package for downloading economic data from the International Monetary Fund JSON RESTful API endpoint.",
     long_description = long_description,
     long_description_content_type = "text/markdown",
-    url = "package URL",
+    url = "https://github.com/chriscarrollsmith/imfPy,
     project_urls = {
-        "Bug Tracker": "package issues URL",
+        "Bug Tracker": "https://github.com/chriscarrollsmith/imfPy/issues",
     },
     classifiers = [
         "Programming Language :: Python :: 3",
