@@ -6,6 +6,7 @@ import functools
 import pandas as pd
 from ratelimiter import RateLimiter
 from pkg_resources import get_distribution
+import re
 
 def _rate_limited(rate_limit):
     """
@@ -64,8 +65,11 @@ def _download_parse(URL, times=3):
             '<!DOCTYPE html in content' in content or
             '<string xmlns="http://schemas.m' in content or
             '<html xmlns=' in content):
+            matches = re.search("<[^>]+>(.*?)<\/[^>]+>", content)
+            inner_text = matches.group(1)
+            output_string = re.sub(" GKey\s*=\s*[a-f0-9-]+", "", inner_text)
             err_message = (f"API request failed. URL: '{URL}', Status: '{status}', "
-                           f"Content: '{content[:30]}'")
+                           f"Content: '{output_string}'")
             raise ValueError(err_message)
 
         try:

@@ -1,8 +1,12 @@
+import sys
+import os
 import pandas as pd
-from functools import partial
-from utils import _download_parse, _imf_dimensions, _imf_metadata
+
+sys.path.insert(0, os.pardir)
+
+from scripts.utils import _download_parse, _imf_dimensions, _imf_metadata
 from urllib.parse import urlencode
-from typing import Union, List, Dict, Tuple
+from typing import Union, Dict, Tuple
 
 
 def imf_databases(times=3):
@@ -92,10 +96,7 @@ def imf_parameters(database_id, times=3):
     return parameter_list
 
 
-import pandas as pd
-from utils import _imf_dimensions
-
-def imf_parameter_defs(database_id, times=3, inputs_only=False):
+def imf_parameter_defs(database_id, times=3, inputs_only=True):
     """
     Get text descriptions of input parameters used in making API
     requests from a given IMF database
@@ -129,7 +130,13 @@ def imf_parameter_defs(database_id, times=3, inputs_only=False):
         raise ValueError('Must supply database_id. Use imf_databases to find.')
 
     url = 'http://dataservices.imf.org/REST/SDMX_JSON.svc/CodeList/'
-    parameterlist = _imf_dimensions(database_id, times)[['parameter', 'description']]
+    try:
+        parameterlist = _imf_dimensions(database_id, times, inputs_only)[['parameter', 'description']]
+    except Exception as e:
+        if 'There is an issue' in str(e):
+            raise ValueError(f"{e}\n\nDid you supply a valid database_id? Use imf_databases to find.")
+        else:
+            raise ValueError(e)
 
     return parameterlist
 

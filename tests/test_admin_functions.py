@@ -19,3 +19,7 @@ def test_imf_app_name():
     
     imf_app_name("imfr_admin_functions_tester")
     assert os.getenv("IMF_APP_NAME") == "imfr_admin_functions_tester"
+
+
+if __name__ == '__main__':
+    pytest.main()
