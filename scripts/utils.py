@@ -93,9 +93,13 @@ def _imf_dimensions(database_id, times=3, inputs_only=True):
     URL = f'http://dataservices.imf.org/REST/SDMX_JSON.svc/DataStructure/{database_id}'
     raw_dl = _download_parse(URL, times)
 
-    code = raw_dl['Structure']['CodeLists']['CodeList']['@id']
-    description = raw_dl['Structure']['CodeLists']['CodeList']['Name']['#text']
-    codelist_df = pd.DataFrame({'code': [code], 'description': [description]})
+    code = []
+    for item in raw_dl['Structure']['CodeLists']['CodeList']:
+        code.append(item['@id'])
+    description = []
+    for item in raw_dl['Structure']['CodeLists']['CodeList']:
+        description.append(item['Name']['#text'])
+    codelist_df = pd.DataFrame({'code': code, 'description': description})
 
     params = [dim['@conceptRef'].lower() for dim in raw_dl['Structure']['KeyFamilies']['KeyFamily']['Components']['Dimension']]
     codes = [dim['@codelist'] for dim in raw_dl['Structure']['KeyFamilies']['KeyFamily']['Components']['Dimension']]
