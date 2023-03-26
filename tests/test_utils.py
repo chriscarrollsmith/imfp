@@ -4,7 +4,6 @@ import pytest
 import pandas as pd
 
 sys.path.insert(0, os.pardir)
-
 from scripts.utils import _download_parse, _imf_metadata, _imf_dimensions
 
 def test_download_parse():
@@ -86,3 +85,7 @@ def test_imf_dimensions_inputs_only_param():
     assert dimensions_2.shape == (6, 3)
     assert dimensions_1.isna().sum().sum() == 0
     assert dimensions_2.isna().sum().sum() == 2
+
+
+if __name__ == '__main__':
+    pytest.main()
