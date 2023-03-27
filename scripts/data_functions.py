@@ -1,6 +1,7 @@
 import sys
 import os
 import pandas as pd
+import warnings
 
 sys.path.insert(0, os.pardir)
 
@@ -87,8 +88,12 @@ def imf_parameters(database_id, times=3):
                                  "description": ["Annual", "Monthly", "Quarterly"]})
         else:
             raw = _download_parse(url + codelist.loc[k, 'code'], times)['Structure']['CodeLists']['CodeList']['Code']
-            return pd.DataFrame({"input_code": [code['@value'] for code in raw],
-                                 "description": [code['Description']['#text'] for code in raw]})
+            if isinstance(raw,list):
+                return pd.DataFrame({"input_code": [code['@value'] for code in raw],
+                                    "description": [code['Description']['#text'] for code in raw]})
+            else:
+                return pd.DataFrame({"input_code": [raw['@value']],
+                                    "description": [raw['Description']['#text']]})
 
     parameter_list = {codelist.loc[k, 'parameter']: fetch_parameter_data(k, url, times)
                       for k in range(codelist.shape[0])}
@@ -184,28 +189,58 @@ def imf_dataset(database_id: str, parameters: Dict = None, start_year: int = Non
 
     years = {}
     if start_year is not None:
-        years['startPeriod'] = start_year
+        try:
+            start_year = str(start_year)
+            if start_year.isdigit() and len(start_year) == 4:
+                years['startPeriod'] = start_year
+            else:
+                raise ValueError("start_year must be a four-digit number, either integer or string")
+        except:
+            raise ValueError("start_year must be a four-digit number, either integer or string")
     if end_year is not None:
-        years['endPeriod'] = end_year
+        try:
+            end_year = str(end_year)
+            if end_year.isdigit() and len(end_year) == 4:
+                years['endPeriod'] = end_year
+            else:
+                raise ValueError("end_year must be a four-digit number, either integer or string")
+        except:
+            raise ValueError("end_year must be a four-digit number, either integer or string")
 
-    data_dimensions = _imf_parameters(database_id, times)
+    data_dimensions = imf_parameters(database_id, times)
 
     if parameters is not None:
         for key in parameters:
             if key not in data_dimensions:
-                raise ValueError(f"{key} not valid parameter(s) for the {database_id} database."
-                                 f"Use _imf_parameters('{database_id}') to get valid parameters.")
-            data_dimensions[key] = data_dimensions[key][data_dimensions[key]['input_code'].isin(parameters[key]['input_code'])]
+                raise ValueError(f"{key} not valid parameter(s) for the {database_id} database. "
+                                 f"Use imf_parameters('{database_id}') to get valid parameters.")
+            invalid_keys = []
+            for x in list(parameters[key]['input_code']):
+                if x not in list(data_dimensions[key]['input_code']):
+                    invalid_keys.append(x)
+            if len(invalid_keys) > 0:
+                warnings.warn(f"{invalid_keys} not valid value(s) for {key} and will be ignored. "
+                              f"Use imf_parameters('{database_id}') to get valid parameters.")
+            data_dimensions[key] = data_dimensions[key].iloc[[index for index, x in enumerate(data_dimensions[key]['input_code']) if x in list(parameters[key]['input_code'])]]
 
     elif kwargs:
         for key in kwargs:
             if key not in data_dimensions:
-                raise ValueError(f"{key} not valid parameter(s) for the {database_id} database."
-                                 f"Use _imf_parameters('{database_id}') to get valid parameters.")
-            data_dimensions[key] = data_dimensions[key][data_dimensions[key]['input_code'].isin(kwargs[key])]
+                raise ValueError(f"{key} not valid parameter(s) for the {database_id} database. "
+                                 f"Use imf_parameters('{database_id}') to get valid parameters.")
+            invalid_vals = []
+            if not isinstance(kwargs[key],list):
+                kwargs[key] = [kwargs[key]]
+            for x in kwargs[key]:
+                if x not in data_dimensions[key]['input_code'].tolist():
+                    invalid_vals.append(x)
+            if len(invalid_vals) > 0:
+                warnings.warn(f"{invalid_vals} not valid value(s) for {key} and will be ignored. "
+                              f"Use imf_parameters('{database_id}') to get valid parameters.")
+            data_dimensions[key] = data_dimensions[key].iloc[[index for index, x in enumerate(data_dimensions[key]['input_code']) if x in kwargs[key]]]
 
     else:
-        print("User supplied no filter parameters for the API request."
+        print("User supplied no filter parameters for the API request. "
               "imf_dataset will attempt to request the entire database.")
         for key in data_dimensions:
             data_dimensions[key] = data_dimensions[key].iloc[0:0]
@@ -219,40 +254,59 @@ def imf_dataset(database_id: str, parameters: Dict = None, start_year: int = Non
     if print_url:
         print(url)
 
-    raw_dl = _download_parse(url, times)['CompactData']['DataSet']['Series']
+    raw_dl = _download_parse(url, times)['CompactData']['DataSet']
+    try:
+        raw_dl = raw_dl['Series']
+    except:
+        raise ValueError("No data found for that combination of parameters. Try making your request less restrictive.")
     if raw_dl is None:
         raise ValueError("No data found for that combination of parameters. Try making your request less restrictive.")
 
     if return_raw:
         if include_metadata:
-            metadata = _imf_metadata(url=url)
+            metadata = _imf_metadata(url)
             return metadata, raw_dl
         else:
             return raw_dl
 
-    if isinstance(raw_dl['Obs'], list):
-        data = []
-        for i, obs in enumerate(raw_dl['Obs']):
-            if isinstance(obs, list):
-                df = pd.DataFrame(obs)
-                df.columns = ['date', 'value']
-            else:
-                df = obs
-                df.columns = ['date', 'value']
+    # Function to check if a value is a scalar
+    def is_scalar(value):
+        return not isinstance(value, (list, tuple, set, pd.Series))
+    
+    # Function to return dictionary without 'Obs'
+    def without_obs(d, keys={"Obs"}):
+        return {x: d[x] for x in d if x not in keys}
+    
+    # Check if raw_dl is a list, and if not, convert it to one
+    if not isinstance(raw_dl,list):
+        raw_dl = [raw_dl]
 
-            tmp = pd.DataFrame({key.lower(): [raw_dl[key][i]] * len(df) for key in raw_dl if key != 'Obs'})
-            data.append(pd.concat([df, tmp], axis=1))
+    def process_data(item):
+       
+        # Make a data frame of dict items excluding 'Obs'
+        if all(is_scalar(value) for value in without_obs(item).values()):
+            param_vals = pd.DataFrame.from_dict([without_obs(item)])
+        else:
+            raise ValueError("Expected item to be scalar, but it's not.")
+        
+        # Make a data frame from the dicts in 'Obs'
+        if not isinstance(item['Obs'], list):
+            item['Obs'] = [item['Obs']]
+        series = pd.DataFrame.from_dict(item['Obs'])
+            
+        # Create a copy of param_vals for every row in series
+        param_vals = pd.concat([param_vals]*len(series)).reset_index(drop=True)
 
-        df = pd.concat(data)
-
-    else:
-        df = raw_dl['Obs']
-        df.columns = ['date', 'value']
-        tmp = pd.DataFrame({key.lower(): [raw_dl[key]] * len(df) for key in raw_dl if key != 'Obs'})
-        df = pd.concat([df, tmp], axis=1)
+        #Column bind param_vals to series
+        output = pd.concat([param_vals, series],axis=1)
+        return output
+    
+    result = pd.concat(list(map(process_data,raw_dl)))
+    result.columns = result.columns.str.replace("@","")
+    result.columns = result.columns.str.lower()
 
     if not include_metadata:
-        return df
+        return result
     else:
-        metadata = _imf_metadata(url=url)
-        return metadata, df
+        metadata = _imf_metadata(url)
+        return metadata, result
