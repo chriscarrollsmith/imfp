@@ -1,0 +1,5 @@
+.pytest_cache
+.git
+.eggs
+imfp\__pycache__
+tests\__pycache__
