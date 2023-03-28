@@ -10,7 +10,7 @@ repository = "https://github.com/chriscarrollsmith/imfp"
 documentation = ""
 keywords = ["economics", "finance", "IMF", "API"]
 classifiers = [
-    "Intended Audience :: Economics :: Finance",
+    "Intended Audience :: Financial and Insurance Industry",
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",

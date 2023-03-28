@@ -6,7 +6,13 @@ API](http://datahelp.imf.org/knowledgebase/articles/667681-using-json-restful-we
 
 ## Installation
 
-To install the development version of imfp, use:
+To install imfp, use:
+
+```python
+pip install imfp
+```
+
+Alternatively, to install the development version, use:
 
 ```python
 pip install --upgrade https://github.com/jkbr/httpie/tarball/master
