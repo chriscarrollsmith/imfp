@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "imfp"
+version = "0.0.1"
+description = "Python package for downloading economic data from the International Monetary Fund JSON RESTful API endpoint."
+authors = ["Christopher C. Smith <chriscarrollsmith@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/chriscarrollsmith/imfp"
+repository = "https://github.com/chriscarrollsmith/imfp"
+documentation = ""
+keywords = ["economics", "finance", "IMF", "API"]
+classifiers = [
+    "Intended Audience :: Economics :: Finance",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+packages = [
+  { include = "imfp" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pandas = "^1.5.3"
+requests = "^2.28.2"
+ratelimiter = "^1.2.0.post0"
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+pytest-runner = "*"
+flake8 = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

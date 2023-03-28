@@ -1,10 +1,7 @@
-import sys
-import os
 import pytest
 import pandas as pd
+from imfp import _download_parse, _imf_metadata, _imf_dimensions
 
-sys.path.insert(0, os.pardir)
-from scripts.utils import _download_parse, _imf_metadata, _imf_dimensions
 
 def test_download_parse():
     # Test with a valid URL

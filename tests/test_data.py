@@ -1,10 +1,6 @@
-import sys
-import os
 import pytest
 import pandas as pd
-
-sys.path.insert(0, os.pardir)
-from scripts.data_functions import imf_databases, imf_parameters, imf_parameter_defs, imf_dataset
+from imfp import imf_databases, imf_parameters, imf_parameter_defs, imf_dataset
 
 
 def test_imf_databases():
@@ -70,7 +66,7 @@ def test_imf_dataset_error_handling():
     with pytest.raises(Exception):
         imf_dataset(database_id="PCPS", end_year=[1999, 2004], times=1)
     with pytest.raises(Exception):
-        imf_dataset(database_id="WHDREO201910", freq="M", ref_area="US", indicator=["PPPSH", "NGDPD"], start_year=2010, end_year=2011, times=3)
+        imf_dataset(database_id="WHDREO201910", freq="M", ref_area="US", indicator=["PPPSH", "NGDPD"], start_year=2010, end_year=2011)
     with pytest.warns(Warning):
         imf_dataset(database_id="FISCALDECENTRALIZATION", parameters=params, ref_sector=["1C_CG", "1C_LG"])
 

@@ -1,5 +1,5 @@
 import pytest
-from scripts.admin_functions import imf_app_name
+from imfp import imf_app_name
 import os
 
 def test_imf_app_name():
