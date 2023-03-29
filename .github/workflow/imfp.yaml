@@ -3,7 +3,7 @@ name: imfp
 on:
   push:
     branches: [main, master]
-  pull:
+  pull_request:
     branches: [main, master]
 
 jobs:
