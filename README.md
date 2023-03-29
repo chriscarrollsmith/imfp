@@ -361,7 +361,7 @@ selected_freq = list(
     params['freq']['input_code'][params['freq']['description'].str.contains("Annual")]
 )
 
-# Fetch the 'commodity' input code for coal
+# Fetch the 'commodity' input code(s) for coal
 selected_commodity = list(
     params['commodity']['input_code'][params['commodity']['description'].str.contains("Coal")]
 )
