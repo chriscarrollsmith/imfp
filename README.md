@@ -328,12 +328,22 @@ Alternatively, it's possible to open the data frame in a new window to view it i
 
 
 ```python
-# Convert data frame to HTML and open in a new browser window
+
+import imfp
+import tempfile
 import webbrowser
 
-params['commodity'].to_html("frame.html")
-url = "http://localhost:8888/files/notebook/frame.html"
-webbrowser.open(url,new=2)
+# Define a simple function to view data frame in a browser window
+def View(df):
+    html = df.to_html()
+    with tempfile.NamedTemporaryFile('w', delete=False, suffix='.html') as f:
+        url = 'file://' + f.name
+        f.write(html)
+    webbrowser.open(url)
+
+# Open data frame in a new browser window using the function
+df = imfp.imf_databases()
+View(df)
 ```
 
 ### Supplying Parameter Arguments to imf_dataset: A Tale of Two Workflows
