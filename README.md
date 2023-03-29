@@ -6,20 +6,14 @@ API](http://datahelp.imf.org/knowledgebase/articles/667681-using-json-restful-we
 
 ## Installation
 
-To install imfp, use:
+To install the stable version of imfp from PyPi, use pip.
+
 
 ```python
-pip install imfp
-```
-
-Alternatively, to install the development version, use:
-
-```python
-pip install --upgrade https://github.com/jkbr/httpie/tarball/master
+pip install --upgrade imfp
 ```
 
 To load the library, use `import`:
-
 
 
 ```python
@@ -31,12 +25,13 @@ import imfp
 
 ### Suggested packages
 
-`imfp` outputs data in a `pandas` data frame, so you will want to use the `pandas` package for its functions for viewing and manipulating this object type. I also recommend `matplotlib` and `numpy`, common libraries for data analysis for making plots. These packages can be installed using `pip` and loaded using `import`:
+`imfp` outputs data in a `pandas` data frame, so you will want to use the `pandas` package for its functions for viewing and manipulating this object type. I also recommend `matplotlib` or `seaborn` for making plots, and `numpy` for computation. These packages can be installed using `pip` and loaded using `import`:
 
 
 ```python
 import pandas
 import matplotlib
+import seaborn
 import numpy as np
 ```
 
@@ -544,7 +539,30 @@ df.head()
 
 ### Working with the Returned Data Frame
 
-Note that all columns in the returned data frame are character vectors, and that to plot the series we will need to convert to valid numeric or date formats.
+Note that all columns in the returned data frame are character vectors, and that to plot the series we will need to convert to valid numeric or date formats. Using `seaborn` with `hue`, we can plot different indicators in different colors:
+
+
+```python
+# Convert obs_value to numeric and time_period to integer year
+df = df.astype({"time_period" : int, "obs_value" : float})
+
+# Plot prices of different commodities in different colors with seaborn
+seaborn.lineplot(data=df, x='time_period', y='obs_value', hue='commodity')
+```
+
+
+
+
+    <AxesSubplot: xlabel='time_period', ylabel='obs_value'>
+
+
+
+
+    
+![png](README_files/README_27_1.png)
+    
+
+
 
 Also note that the returned data frame has mysterious-looking codes as values in some columns.
 
@@ -562,7 +580,6 @@ df = df.drop(columns=['ref_area','input_code']).rename(columns={"description":"r
 
 # View first few columns in the modified data frame
 df.head()
-
 ```
 
 
@@ -592,7 +609,7 @@ df.head()
       <td>0</td>
       <td>P1Y</td>
       <td>2000</td>
-      <td>39.3510230293202</td>
+      <td>39.351023</td>
       <td>All Countries, excluding the IO</td>
     </tr>
     <tr>
@@ -603,7 +620,7 @@ df.head()
       <td>0</td>
       <td>P1Y</td>
       <td>2001</td>
-      <td>49.3378587284039</td>
+      <td>49.337859</td>
       <td>All Countries, excluding the IO</td>
     </tr>
     <tr>
@@ -614,7 +631,7 @@ df.head()
       <td>0</td>
       <td>P1Y</td>
       <td>2002</td>
-      <td>39.4949091648006</td>
+      <td>39.494909</td>
       <td>All Countries, excluding the IO</td>
     </tr>
     <tr>
@@ -625,7 +642,7 @@ df.head()
       <td>0</td>
       <td>P1Y</td>
       <td>2003</td>
-      <td>43.2878876950788</td>
+      <td>43.287888</td>
       <td>All Countries, excluding the IO</td>
     </tr>
     <tr>
@@ -636,102 +653,7 @@ df.head()
       <td>0</td>
       <td>P1Y</td>
       <td>2004</td>
-      <td>82.9185858052862</td>
-      <td>All Countries, excluding the IO</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-Alternatively, we can simply replace the code in our data series with the corresponding description in `params`. Here, we replace each `unit_measure` code with the corresponding description in `params['unit_measure']`:
-
-
-```python
-# Replace each unique unit_measure code in df with corresponding description
-# in params['unit_measure']
-for code in np.unique(df['unit_measure']):
-    df['unit_measure'][df['unit_measure'] == (code)] = (
-        params['unit_measure']['description'][params['unit_measure']['input_code'] == (code)][0]
-    )
-
-# Display the first few entries in the retrieved data frame using knitr::kable
-df.head()
-```
-
-
-
-
-<div>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>freq</th>
-      <th>commodity</th>
-      <th>unit_measure</th>
-      <th>unit_mult</th>
-      <th>time_format</th>
-      <th>time_period</th>
-      <th>obs_value</th>
-      <th>ref_area</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>A</td>
-      <td>PCOAL</td>
-      <td>Index</td>
-      <td>0</td>
-      <td>P1Y</td>
-      <td>2000</td>
-      <td>39.3510230293202</td>
-      <td>All Countries, excluding the IO</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>A</td>
-      <td>PCOAL</td>
-      <td>Index</td>
-      <td>0</td>
-      <td>P1Y</td>
-      <td>2001</td>
-      <td>49.3378587284039</td>
-      <td>All Countries, excluding the IO</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>A</td>
-      <td>PCOAL</td>
-      <td>Index</td>
-      <td>0</td>
-      <td>P1Y</td>
-      <td>2002</td>
-      <td>39.4949091648006</td>
-      <td>All Countries, excluding the IO</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>A</td>
-      <td>PCOAL</td>
-      <td>Index</td>
-      <td>0</td>
-      <td>P1Y</td>
-      <td>2003</td>
-      <td>43.2878876950788</td>
-      <td>All Countries, excluding the IO</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>A</td>
-      <td>PCOAL</td>
-      <td>Index</td>
-      <td>0</td>
-      <td>P1Y</td>
-      <td>2004</td>
-      <td>82.9185858052862</td>
+      <td>82.918586</td>
       <td>All Countries, excluding the IO</td>
     </tr>
   </tbody>

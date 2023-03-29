@@ -6,7 +6,7 @@ def test_imf_app_name():
     with pytest.warns(UserWarning):
         imf_app_name("")
     with pytest.warns(UserWarning):
-        imf_app_name("imfr")
+        imf_app_name("imfp")
     
     with pytest.raises(ValueError):
         imf_app_name(None)
