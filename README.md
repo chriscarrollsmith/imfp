@@ -123,6 +123,7 @@ databases.loc[5:9]
 
 
 <div>
+
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -175,6 +176,7 @@ databases[databases['description'].str.contains("Commodity")]
 
 
 <div>
+
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -317,6 +319,22 @@ params['freq']
 </div>
 
 
+
+### Viewing Data Frames
+
+Note that `pandas` data frames in Python can be a little difficult to work with, because Python doesn't have a built-in variable explorer. If you're doing data science, I recommend using an IDE like RStudio or Spyder that has a built-in variable explorer. However, if you don't have a variable explorer, you can prevent Python from truncating data frames using the `options` in `pandas`. For instance, to increase the maximum allowed column width to 100 characters, we can use `pandas.options.display.max_colwidth = 100`.
+
+Alternatively, it's possible to open the data frame in a new window to view it in full using the `webbrowser` library:
+
+
+```python
+# Convert data frame to HTML and open in a new browser window
+import webbrowser
+
+params['commodity'].to_html("frame.html")
+url = "http://localhost:8888/files/notebook/frame.html"
+webbrowser.open(url,new=2)
+```
 
 ### Supplying Parameter Arguments to imf_dataset: A Tale of Two Workflows
 
@@ -559,7 +577,7 @@ seaborn.lineplot(data=df, x='time_period', y='obs_value', hue='commodity')
 
 
     
-![png](README_files/README_27_1.png)
+![png](README_files/README_30_1.png)
     
 
 
