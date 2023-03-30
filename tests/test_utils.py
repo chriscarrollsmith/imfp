@@ -1,6 +1,34 @@
 import pytest
+import responses
+import time
 import pandas as pd
-from imfp import _download_parse, _imf_metadata, _imf_dimensions
+from imfp import _imf_get, _download_parse, _imf_metadata, _imf_dimensions
+
+
+@responses.activate
+def test_imf_get():
+    # Define a mock URL and response
+    mock_url = "https://example.com/"
+    mock_response_text = "Example Domain"
+    mock_header = {'Accept': 'application/json', 'User-Agent': 'imfp'}
+
+    # Add the mock response to the responses library
+    responses.add(responses.GET, mock_url, body=mock_response_text, status=200)
+
+    # Call the _imf_get function and assert that the response text matches the mock response
+    response = _imf_get(mock_url, mock_header)
+    assert response.text == mock_response_text
+
+    # Test the rate-limiting functionality by checking the elapsed time between two requests
+    import time
+    start_time = time.perf_counter()
+    response1 = _imf_get(mock_url, mock_header)
+    response2 = _imf_get(mock_url, mock_header)
+    end_time = time.perf_counter()
+    elapsed_time = end_time - start_time
+
+    # Since the minimum wait time is 0.5 seconds, the elapsed time should be at least 0.5 seconds
+    assert elapsed_time >= 1.5
 
 
 def test_download_parse():

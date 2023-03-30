@@ -1,37 +1,51 @@
 from os import environ
-from time import sleep
+from time import sleep, perf_counter
 from requests import get
 from json import loads, JSONDecodeError
-from functools import wraps
 from pandas import DataFrame
-from ratelimiter import RateLimiter
 from pkg_resources import get_distribution, DistributionNotFound
 import re
 
 
-def _rate_limited(rate_limit):
-    """
-    (Internal) Decorator function for rate limiting the decorated function.
-
-    Args:
-        rate_limit (RateLimiter): A RateLimiter object specifying the maximum
-        number of calls and the time period.
-
-    Returns:
-        Callable: A decorated function that is rate-limited according to the
-        provided RateLimiter object.
-    """
-
+def _min_wait_time_limited(min_wait_time):
     def decorator(func):
-        @wraps(func)
+        last_called = [0.0]
+
         def wrapper(*args, **kwargs):
-            with rate_limit:
-                return func(*args, **kwargs)
+            elapsed = perf_counter() - last_called[0]
+            left_to_wait = min_wait_time - elapsed
+            if left_to_wait > 0:
+                sleep(left_to_wait)
+            ret = func(*args, **kwargs)
+            last_called[0] = perf_counter()
+            return ret
+
         return wrapper
+
     return decorator
 
 
-@_rate_limited(rate_limit=RateLimiter(max_calls=3, period=5))
+@_min_wait_time_limited(1.5)  # 1.5 seconds wait time between calls
+def _imf_get(url, headers):
+    """
+    A rate-limited wrapper around the requests.get method.
+    
+    Args:
+        url (str): The URL to send a GET request to.
+        headers (dict): The headers to use in the API request.
+    
+    Returns:
+        requests.Response: The response object returned by requests.get.
+        
+    Usage:
+        response = _imf_get(
+                'http://dataservices.imf.org/REST/SDMX_JSON.svc/Dataflow'
+            )
+        print(response.text)
+    """
+    return get(url, headers)
+
+
 def _download_parse(URL, times=2):
     """
     (Internal) Download and parse JSON content from a URL with rate limiting
@@ -65,7 +79,7 @@ def _download_parse(URL, times=2):
     headers = {'Accept': 'application/json', 'User-Agent': app_name}
     for _ in range(times):
         try:
-            response = get(URL, headers=headers)
+            response = _imf_get(URL, headers=headers)
             content = response.text
             status = response.status_code
             json_parsed = loads(content)
