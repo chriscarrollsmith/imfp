@@ -85,7 +85,7 @@ def _download_parse(URL, times=2):
             json_parsed = loads(content)
             return json_parsed
         except JSONDecodeError:
-            if ('Rejected' in content):
+            if ('Rejected' in content or 'Bandwidth' in content):
                 if _ < times - 1:
                     sleep(5 ** (_ + 1))
                 else:
