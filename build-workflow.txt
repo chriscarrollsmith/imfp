@@ -1,0 +1,15 @@
+Change code
+Change README
+Change NEWS
+
+flake8 imfp
+flake8 tests
+poetry patch
+py README_files\render.py
+poetry build
+poetry install
+pytest tests
+poetry publish
+
+Git commit/push
+Git release

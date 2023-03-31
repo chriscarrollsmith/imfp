@@ -2,45 +2,29 @@ name: build-test
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
   pull_request:
-    branches: [main, master]
+    branches: [main]
 
 jobs:
   build:
+
+    runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
         python-version: ["3.11"]
-        poetry-version: [latest]
-        os: [windows-latest]
-    defaults:
-      run:
-        shell: bash
-    runs-on: ${{ matrix.os }}
+
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install and configure Poetry
-        uses: snok/install-poetry@v1
-      - name: Configure Poetry
+      - name: Install dependencies
         run: |
-          poetry config virtualenvs.in-project true
-      - name: Install project
+          python -m pip install --upgrade pip
+          pip install pytest
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Test with pytest
         run: |
-          poetry install --no-interaction
-      - name: Activate venv windows
-        run: |
-          source .venv/scripts/activate
-          pytest --version
-        if: runner.os == 'Windows'
-      - name: Activate venv other
-        run: |
-          source .venv/bin/activate
-          pytest --version
-        if: runner.os != 'Windows'
-      - name: Run tests
-        run: |
-          py.test tests
+          pytest
