@@ -68,6 +68,7 @@ databases.head()
 
 
 <div>
+
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -241,6 +242,7 @@ imfp.imf_parameter_defs("PCPS")
 
 
 <div>
+
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -290,6 +292,7 @@ params['freq']
 
 
 <div>
+
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -324,11 +327,10 @@ params['freq']
 
 Note that `pandas` data frames in Python can be a little difficult to work with, because Python doesn't have a built-in variable explorer. If you're doing data science, I recommend using an IDE like RStudio or Spyder that has a built-in variable explorer. However, if you don't have a variable explorer, you can prevent Python from truncating data frames using the `options` in `pandas`. For instance, to increase the maximum allowed column width to 100 characters, we can use `pandas.options.display.max_colwidth = 100`.
 
-Alternatively, it's possible to open the data frame in a new window to view it in full using the `webbrowser` library:
+Alternatively, it's possible to open the data frame in a new window to view it in full:
 
 
 ```python
-
 import imfp
 import tempfile
 import webbrowser
@@ -361,7 +363,7 @@ selected_freq = list(
     params['freq']['input_code'][params['freq']['description'].str.contains("Annual")]
 )
 
-# Fetch the 'commodity' input code(s) for coal
+# Fetch the 'commodity' input code for coal
 selected_commodity = list(
     params['commodity']['input_code'][params['commodity']['description'].str.contains("Coal")]
 )
@@ -385,6 +387,7 @@ df.head()
 
 
 <div>
+
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -470,7 +473,7 @@ To supply a list object, modify each data frame in the `params` list object to r
 # Fetch the 'freq' input code for annual frequency
 params['freq'] = params['freq'][params['freq']['description'].str.contains("Annual")]
 
-# Fetch the 'commodity' input code for coal
+# Fetch the 'commodity' input code(s) for coal
 params['commodity'] = params['commodity'][params['commodity']['description'].str.contains("Coal")]
 
 # Fetch the 'unit_measure' input code for index
@@ -489,6 +492,7 @@ df.head()
 
 
 <div>
+
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -587,7 +591,7 @@ seaborn.lineplot(data=df, x='time_period', y='obs_value', hue='commodity')
 
 
     
-![png](README_files/README_30_1.png)
+![png](output_30_1.png)
     
 
 
@@ -614,6 +618,7 @@ df.head()
 
 
 <div>
+
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
