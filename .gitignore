@@ -1,6 +1,8 @@
 .pytest_cache
 .git
 .eggs
-imfp\__pycache__
-tests\__pycache__
-.venv
+imfp/__pycache__
+tests/__pycache__
+.venv/Include
+.venv/Lib
+.venv/Scripts
