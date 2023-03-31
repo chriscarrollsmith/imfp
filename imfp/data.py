@@ -4,7 +4,7 @@ from .utils import _download_parse, _imf_dimensions, _imf_metadata
 from urllib.parse import urlencode
 
 
-def imf_databases(times=2):
+def imf_databases(times=3):
     """
     List IMF database IDs and descriptions
 
@@ -122,7 +122,7 @@ def imf_parameters(database_id, times=2):
     return parameter_list
 
 
-def imf_parameter_defs(database_id, times=2, inputs_only=True):
+def imf_parameter_defs(database_id, times=3, inputs_only=True):
     """
     Get text descriptions of input parameters used in making API
     requests from a given IMF database
@@ -172,7 +172,7 @@ def imf_parameter_defs(database_id, times=2, inputs_only=True):
 def imf_dataset(
             database_id: str, parameters: dict = None, start_year: int = None,
             end_year: int = None, return_raw: bool = False,
-            print_url: bool = False, times: int = 2,
+            print_url: bool = False, times: int = 3,
             include_metadata: bool = False, **kwargs
         ):
     """

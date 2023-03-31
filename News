@@ -1,5 +1,9 @@
 # All updates will be detailed here
 
+## Version 1.0.3
+
+- Addressed bandwidth limit
+
 ## Version 1.0.2
 
 - Fixed Python 11 async-related incompatibility problem

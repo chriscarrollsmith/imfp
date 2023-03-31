@@ -25,7 +25,10 @@ def _min_wait_time_limited(min_wait_time):
     return decorator
 
 
-@_min_wait_time_limited(1.5)  # 1.5 seconds wait time between calls
+_imf_wait_time = 1.5
+
+
+@_min_wait_time_limited(_imf_wait_time)  # 1.5 seconds wait time between calls
 def _imf_get(url, headers):
     """
     A rate-limited wrapper around the requests.get method.
@@ -46,7 +49,7 @@ def _imf_get(url, headers):
     return get(url, headers)
 
 
-def _download_parse(URL, times=2):
+def _download_parse(URL, times=3):
     """
     (Internal) Download and parse JSON content from a URL with rate limiting
     and retries.

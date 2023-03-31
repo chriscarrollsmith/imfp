@@ -4,7 +4,7 @@ Change NEWS
 
 flake8 imfp
 flake8 tests
-poetry patch
+poetry version patch
 py README_files\render.py
 poetry build
 poetry install

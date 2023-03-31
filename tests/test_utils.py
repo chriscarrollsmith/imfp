@@ -5,6 +5,10 @@ import pandas as pd
 from imfp import _imf_get, _download_parse, _imf_metadata, _imf_dimensions
 
 
+#Set a stricter rate limit for cross-platform testing
+_imf_wait_time = 2.5
+
+
 @responses.activate
 def test_imf_get():
     # Define a mock URL and response
@@ -20,7 +24,6 @@ def test_imf_get():
     assert response.text == mock_response_text
 
     # Test the rate-limiting functionality by checking the elapsed time between two requests
-    import time
     start_time = time.perf_counter()
     response1 = _imf_get(mock_url, mock_header)
     response2 = _imf_get(mock_url, mock_header)
@@ -28,7 +31,7 @@ def test_imf_get():
     elapsed_time = end_time - start_time
 
     # Since the minimum wait time is 0.5 seconds, the elapsed time should be at least 0.5 seconds
-    assert elapsed_time >= 1.5
+    assert elapsed_time >= _imf_wait_time
 
 
 def test_download_parse():

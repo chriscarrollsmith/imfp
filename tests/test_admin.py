@@ -2,6 +2,11 @@ import pytest
 from imfp import imf_app_name
 import os
 
+
+# Set a stricter rate limit for cross-platform testing
+_imf_wait_time = 2.5
+
+
 def test_imf_app_name():
     with pytest.warns(UserWarning):
         imf_app_name("")
