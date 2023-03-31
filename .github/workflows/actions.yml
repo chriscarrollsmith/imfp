@@ -13,7 +13,10 @@ jobs:
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11"]
         poetry-version: [latest]
-        os: [windows-latest]
+        os: [ubuntu-latest]
+    defaults:
+      run:
+        shell: bash
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
@@ -33,8 +36,16 @@ jobs:
         run: poetry install --no-interaction --no-root
       - name: Install project
         run: poetry install --no-interaction
-      - name: Run tests
+      - name: Activate venv
+        run: |
+          source .venv/scripts/activate
+          pytest --version
+        if: runner.os == 'Windows'
         run: |
           source .venv/bin/activate
+          pytest --version
+        if: runner.os != 'Windows'
+      - name: Run tests
+        run: |
           pytest tests/
           coverage report
