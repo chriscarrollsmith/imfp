@@ -43,5 +43,4 @@ jobs:
         if: runner.os != 'Windows'
       - name: Run tests
         run: |
-          pytest tests/
-          coverage report
+          python -m pytest tests/
