@@ -43,4 +43,4 @@ jobs:
         if: runner.os != 'Windows'
       - name: Run tests
         run: |
-          py -m pytest tests
+          python3 -m pytest tests
