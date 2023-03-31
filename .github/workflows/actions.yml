@@ -25,8 +25,12 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install and configure Poetry
         uses: snok/install-poetry@v1
+      - name: Configure Poetry
+        run: |
+          poetry config settings.virtualenvs.in-project true
       - name: Install project
-        run: poetry install --no-interaction
+        run: |
+          poetry install --no-interaction
       - name: Activate venv windows
         run: |
           source .venv/scripts/activate
