@@ -27,7 +27,7 @@ jobs:
         uses: snok/install-poetry@v1
       - name: Configure Poetry
         run: |
-          poetry config settings.virtualenvs.in-project true
+          poetry config virtualenvs.in-project true
       - name: Install project
         run: |
           poetry install --no-interaction
@@ -43,5 +43,4 @@ jobs:
         if: runner.os != 'Windows'
       - name: Run tests
         run: |
-          pytest tests/
-          coverage report
+          py.test tests
