@@ -53,6 +53,13 @@ imfp.imf_app_name("my_custom_app_name")
 
 The function will throw an error if the provided name is missing, NULL, NA, not a string, or longer than 255 characters. If the provided name is "imfr" (the default) or an empty string, the function will issue a warning recommending the use of a unique app name to avoid hitting rate limits.
 
+### Adjusting the rate limit with _imf_wait_time
+
+During import of `imfp`, a variable called _imf_wait_time is set to a default value of 1.5. This is the mandatory enforced wait time between API calls, to prevent repeated or recursive calls from exceeding the limit. This wait time should be sufficient for most applications. However, if you are running parallel processes using `imfp` (e.g. during cross-platform testing), this wait time may be insufficient to prevent you from running up against the API's rate and bandwidth limits. You can increase this wait time by simply changing the variable value. For instance, to increase the between-call wait time by one second, use `_imf_wait_time += 1`.
+
+Also note that by default, `imfp` functions will retry any API call rejected for bandwidth or rate limit reasons. The number of times `imfp` will attempt the call is set by the `times` argument, with a default value of 3. (With this value, requests will be retried twice after an initial failure.) Note that `imfp` enforces an exponentially increasing wait time between function calls, with a base wait time of 5 seconds on the first retry, so it is not recommended to set a high value for `times`.
+
+
 ### Fetching an Index of Databases with the imf_databases Function
 
 The `imfp` package introduces four core functions: `imfp.imf_databases`, `imfp.imf_parameters`, `imfp.imf_parameter_defs`, and `imfp.imf_dataset`. The function for downloading datasets is `imfp.imf_dataset`, but you will need the other functions to determine what arguments to supply to `imfp.imf_dataset`. For instance, all calls to `imfp.imf_dataset` require a `database_id`. This is because the IMF serves many different databases through its API, and the API needs to know which of these many databases you're requesting data from. To obtain a list of databases, use `imfp.imf_databases`, like so:
@@ -591,7 +598,7 @@ seaborn.lineplot(data=df, x='time_period', y='obs_value', hue='commodity')
 
 
     
-![png](output_30_1.png)
+![png](output_32_1.png)
     
 
 

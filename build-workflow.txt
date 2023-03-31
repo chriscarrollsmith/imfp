@@ -12,4 +12,4 @@ pytest tests
 poetry publish
 
 Git commit/push
-Git release
+Github release
