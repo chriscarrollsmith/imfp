@@ -9,7 +9,7 @@ def remove_scoped_styles(markdown_content):
 
 def replace_png_links(markdown_content):
     png_pattern = re.compile(r'!\[png\]\(.*?\.png\)', re.DOTALL)
-    return png_pattern.sub('![png](plot.png)', markdown_content)
+    return png_pattern.sub('![png](README_files/plot.png)', markdown_content)
 
 def convert_notebook_to_markdown(input_file, output_file):
     # Read the notebook

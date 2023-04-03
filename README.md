@@ -591,7 +591,7 @@ seaborn.lineplot(data=df, x='time_period', y='obs_value', hue='commodity');
 
 
     
-![png](plot.png)
+![png](README_files/plot.png)
     
 
 
