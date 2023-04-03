@@ -27,7 +27,7 @@ def convert_notebook_to_markdown(input_file, output_file):
     markdown_output = remove_scoped_styles(markdown_output)
 
     # Replace .png links
-    markdown_output = remove_scoped_styles(markdown_output)
+    markdown_output = replace_png_links(markdown_output)
 
     # Write the result to the output file
     with open(output_file, 'w', encoding='utf-8') as f:
