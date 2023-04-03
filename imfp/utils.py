@@ -32,14 +32,14 @@ _imf_wait_time = 1.5
 def _imf_get(url, headers):
     """
     A rate-limited wrapper around the requests.get method.
-    
+
     Args:
         url (str): The URL to send a GET request to.
         headers (dict): The headers to use in the API request.
-    
+
     Returns:
         requests.Response: The response object returned by requests.get.
-        
+
     Usage:
         response = _imf_get(
                 'http://dataservices.imf.org/REST/SDMX_JSON.svc/Dataflow'

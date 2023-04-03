@@ -4,8 +4,9 @@ Change NEWS
 
 flake8 imfp
 flake8 tests
-poetry version patch
 py README_files\render.py
+poetry version patch
+poetry lock
 poetry build
 poetry install
 pytest tests

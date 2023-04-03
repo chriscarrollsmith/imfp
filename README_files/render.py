@@ -7,6 +7,10 @@ def remove_scoped_styles(markdown_content):
     style_pattern = re.compile(r'<style scoped>.*?</style>', re.DOTALL)
     return style_pattern.sub('', markdown_content)
 
+def replace_png_links(markdown_content):
+    png_pattern = re.compile(r'!\[png\]\(.*?\.png\)', re.DOTALL)
+    return png_pattern.sub('![png](plot.png)', markdown_content)
+
 def convert_notebook_to_markdown(input_file, output_file):
     # Read the notebook
     with open(input_file, 'r', encoding='utf-8') as f:
@@ -20,6 +24,9 @@ def convert_notebook_to_markdown(input_file, output_file):
     markdown_output, _ = markdown_exporter.from_notebook_node(notebook)
 
     # Remove scoped styles
+    markdown_output = remove_scoped_styles(markdown_output)
+
+    # Replace .png links
     markdown_output = remove_scoped_styles(markdown_output)
 
     # Write the result to the output file

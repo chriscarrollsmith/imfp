@@ -1,7 +1,10 @@
-# imfr
+# imfp
+
+[![Tests](https://github.com/chriscarrollsmith/imfp/actions/workflows/actions.yml/badge.svg)](https://github.com/chriscarrollsmith/imfp/actions/workflows/actions.yml)
+[![PyPI Version](https://img.shields.io/pypi/v/imfp.svg)](https://pypi.python.org/pypi/imfp)
 
 `imfp`, by Christopher C. Smith, is a Python package for downloading data from the [International Monetary
-Funds's](http://data.imf.org/) [RESTful JSON
+Fund's](http://data.imf.org/) [RESTful JSON
 API](http://datahelp.imf.org/knowledgebase/articles/667681-using-json-restful-web-service).
 
 ## Installation
@@ -10,7 +13,7 @@ To install the stable version of imfp from PyPi, use pip.
 
 
 ```python
-pip install --upgrade imfp
+pip install -q --upgrade imfp
 ```
 
 To load the library, use `import`:
@@ -29,10 +32,7 @@ import imfp
 
 
 ```python
-import pandas
-import matplotlib
 import seaborn
-import numpy as np
 ```
 
 ### Setting a Unique Application Name with imf_app_name
@@ -195,12 +195,12 @@ databases[databases['description'].str.contains("Commodity")]
   </thead>
   <tbody>
     <tr>
-      <th>238</th>
+      <th>237</th>
       <td>PCTOT</td>
       <td>Commodity Terms of Trade</td>
     </tr>
     <tr>
-      <th>241</th>
+      <th>239</th>
       <td>PCPS</td>
       <td>Primary Commodity Price System (PCPS)</td>
     </tr>
@@ -586,19 +586,12 @@ Note that all columns in the returned data frame are character vectors, and that
 df = df.astype({"time_period" : int, "obs_value" : float})
 
 # Plot prices of different commodities in different colors with seaborn
-seaborn.lineplot(data=df, x='time_period', y='obs_value', hue='commodity')
+seaborn.lineplot(data=df, x='time_period', y='obs_value', hue='commodity');
 ```
 
 
-
-
-    <AxesSubplot: xlabel='time_period', ylabel='obs_value'>
-
-
-
-
     
-![png](output_32_1.png)
+![png](output_32_0.png)
     
 
 

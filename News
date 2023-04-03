@@ -1,12 +1,22 @@
 # All updates will be detailed here
 
+## Version 1.0.5
+
+- Minor adjustments to project docs
+
+- Linted unit tests
+
+## Version 1.0.4
+
+- Added `_imf_wait_time` variable for enhanced rate limit support
+
 ## Version 1.0.3
 
 - Addressed bandwidth limit
 
 ## Version 1.0.2
 
-- Fixed Python 11 async-related incompatibility problem
+- Fixed Python 3.11 async-related incompatibility problem
 
 ## Version 1.0.1
 
