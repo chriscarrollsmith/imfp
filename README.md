@@ -1,5 +1,8 @@
 # imfp
 
+[![Tests](https://github.com/chriscarrollsmith/imfp/actions/workflows/actions.yml/badge.svg)](https://github.com/chriscarrollsmith/imfp/actions/workflows/actions.yml)
+[![PyPI Version](https://img.shields.io/pypi/v/imfp.svg)](https://pypi.python.org/pypi/imfp)
+
 `imfp`, by Christopher C. Smith, is a Python package for downloading data from the [International Monetary
 Fund's](http://data.imf.org/) [RESTful JSON
 API](http://datahelp.imf.org/knowledgebase/articles/667681-using-json-restful-web-service).
