@@ -1,4 +1,4 @@
-# imfr
+# imfp
 
 `imfp`, by Christopher C. Smith, is a Python package for downloading data from the [International Monetary
 Funds's](http://data.imf.org/) [RESTful JSON
