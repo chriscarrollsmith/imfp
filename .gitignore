@@ -5,3 +5,4 @@ imfp/__pycache__
 tests/__pycache__
 .venv/
 experimental/
+docs
