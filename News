@@ -1,5 +1,11 @@
 # All updates will be detailed here
 
+## Version 1.0.8
+
+- Handled a case where, apparently, certain databases have required request parameters
+
+- Added a couple experimental scripts for users who want to download whole databases; use at your own risk (of being blocked by the API)!
+
 ## Version 1.0.7
 
 - Added error handling for the case where the user-specified parameter codes are valid, but the years are outside the dataset's range

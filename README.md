@@ -213,7 +213,7 @@ databases[databases['description'].str.contains("Commodity")]
 
 ### Fetching a List of Parameters and Input Codes with imf_parameters and imf_parameter_defs
 
-Once you have a `database_id`, it’s possible to make a call to `imfp.imf_dataset` to fetch the entire database: `imfp.imf_dataset(database_id)`. However, while this will succeed for some small databases, it will fail for many of the larger ones. And even when it succeeds, fetching an entire database can take a long time. You’re much better off supplying additional filter parameters to reduce the size of your request.
+Once you have a `database_id`, it’s possible to make a call to `imfp.imf_dataset` to fetch the entire database: `imfp.imf_dataset(database_id)`. However, while this will succeed for a few small databases, it will fail for all of the larger ones. And even in the rare case when it succeeds, fetching an entire database can take a long time. You’re much better off supplying additional filter parameters to reduce the size of your request.
 
 Requests to databases available through the IMF API are complicated by the fact that each database uses a different set of parameters when making a request. (At last count, there were 43 unique parameters used in making API requests from the various databases!) You also have to have the list of valid input codes for each parameter. The `imfp.imf_parameters` function solves this problem. Use the function to obtain the full list of parameters and valid input codes for a given database:
 
