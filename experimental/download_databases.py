@@ -8,11 +8,11 @@ _imf_wait_time = 10
 
 # Attempt to download databases sequentially
 databases = imfp.imf_databases()
-datasets = {"database_names" : [], "dataframes": []}
+datasets = {"database_names": [], "dataframes": []}
 for database_id in databases["database_id"]:
     datasets["database_names"].append(database_id)
     try:
         datasets["dataframes"].append(imfp.imf_dataset(database_id))
     except Exception as e:
         datasets["dataframes"].append(None)
-        print("An error occurred when downloading",database_id,": ",e)
+        print("An error occurred when downloading", database_id, ": ", e)

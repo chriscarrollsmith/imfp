@@ -114,12 +114,14 @@ def _download_parse(URL, times=3):
                     "Too many parameters supplied. "
                     "Please narrow the request and try again."
                 )
-            elif status == 500 and 'please check your query' in content.lower():
-                err_message = (f"API request failed. URL: '{URL}' "
-                               f"Status: '{status}', "
-                               f"Content: '{output_string}'\n\n"
-                               "Your request may be missing one or more required "
-                               "parameters. Please adjust your query and try again.")
+            elif status == 500 and "please check your query" in content.lower():
+                err_message = (
+                    f"API request failed. URL: '{URL}' "
+                    f"Status: '{status}', "
+                    f"Content: '{output_string}'\n\n"
+                    "Your request may be missing one or more required "
+                    "parameters. Please adjust your query and try again."
+                )
             else:
                 err_message = (
                     f"API request failed. URL: '{URL}' "
