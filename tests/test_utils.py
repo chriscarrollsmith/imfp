@@ -133,6 +133,13 @@ def test_bad_request():
 
     assert "Too many parameters supplied" in str(excinfo.value)
 
+    URL = "http://dataservices.imf.org/REST/SDMX_JSON.svc/CompactData/BOP_2017M06/.."
+
+    with pytest.raises(ValueError) as excinfo:
+        _download_parse(URL)
+
+    assert "too large" in str(excinfo.value)
+
 
 if __name__ == "__main__":
     pytest.main()

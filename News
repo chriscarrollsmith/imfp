@@ -1,5 +1,11 @@
 # All updates will be detailed here
 
+## Version 1.0.7
+
+- Added error handling for the case where the user-specified parameter codes are valid, but the years are outside the dataset's range
+
+- Adjusted the regular expression used in passing through error messages from the API endpoint
+
 ## Version 1.0.6
 
 - Corrected bug in URL handling when user omits one or more parameters

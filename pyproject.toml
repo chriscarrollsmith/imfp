@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "imfp"
-version = "1.0.6"
+version = "1.0.7"
 description = "Python package for downloading economic data from the International Monetary Fund JSON RESTful API endpoint."
 authors = ["Christopher C. Smith <chriscarrollsmith@gmail.com>"]
 license = "MIT"

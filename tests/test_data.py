@@ -104,6 +104,14 @@ def test_imf_dataset_error_handling():
             parameters=params,
             ref_sector=["1C_CG", "1C_LG"],
         )
+    with pytest.raises(Exception, match=".*outside the dataset's range.*"):
+        imf_dataset(
+            database_id="BOP_2017M06",
+            freq="A",
+            ref_area="AF",
+            start_year=2016,
+            end_year=2018,
+        )
 
 
 def test_imf_dataset_params_list_request():

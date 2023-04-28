@@ -86,8 +86,8 @@ def _download_parse(URL, times=3):
         status = response.status_code
 
         if status != 200 or ("<" in content and ">" in content):
-            matches = re.search(">([^<>]+)<", content)  # Updated regular expression
-            inner_text = matches.group(1) if matches else content
+            matches = re.search("<[^>]+>(.*?)<\\/[^>]+>", content)
+            inner_text = matches.group(1)
             output_string = re.sub(" GKey\\s*=\\s*[a-f0-9-]+", "", inner_text)
 
             if "Rejected" in content or "Bandwidth" in content:

@@ -398,8 +398,14 @@ def imf_dataset(
             raise ValueError("Expected item to be scalar, but it's not.")
 
         # Make a data frame from the dicts in 'Obs'
-        if not isinstance(item["Obs"], list):
-            item["Obs"] = [item["Obs"]]
+        try:
+            if not isinstance(item["Obs"], list):
+                item["Obs"] = [item["Obs"]]
+        except:
+            raise ValueError(
+                "No observations found for that combination of parameters. "
+                "start_year and end_year may be outside the dataset's range."
+            )
         series = DataFrame.from_dict(item["Obs"])
 
         # Create a copy of param_vals for every row in series
