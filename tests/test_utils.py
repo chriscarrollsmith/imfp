@@ -14,7 +14,7 @@ def test_imf_get():
     # Define a mock URL and response
     mock_url = "https://example.com/"
     mock_response_text = "Example Domain"
-    mock_header = {'Accept': 'application/json', 'User-Agent': 'imfp'}
+    mock_header = {"Accept": "application/json", "User-Agent": "imfp"}
 
     # Add the mock response to the responses library
     responses.add(responses.GET, mock_url, body=mock_response_text, status=200)
@@ -39,24 +39,30 @@ def test_imf_get():
 
 def test_download_parse():
     # Test with a valid URL
-    valid_url = ("http://dataservices.imf.org/REST/SDMX_JSON.svc/"
-                 "CompactData/BOP/A.US.BXSTVPO_BP6_USD?startPeriod=2020")
+    valid_url = (
+        "http://dataservices.imf.org/REST/SDMX_JSON.svc/"
+        "CompactData/BOP/A.US.BXSTVPO_BP6_USD?startPeriod=2020"
+    )
     valid_result = _download_parse(valid_url)
     assert isinstance(valid_result, dict)
     assert len(valid_result) == 1
-    assert 'CompactData' in valid_result
-    assert len(valid_result['CompactData']) == 6
+    assert "CompactData" in valid_result
+    assert len(valid_result["CompactData"]) == 6
 
     # Test with an invalid URL
-    invalid_url = ("http://dataservices.imf.org/REST/SDMX_JSON.svc/"
-                   "CompactData/not_a_real_database/")
+    invalid_url = (
+        "http://dataservices.imf.org/REST/SDMX_JSON.svc/"
+        "CompactData/not_a_real_database/"
+    )
     with pytest.raises(ValueError):
         _download_parse(invalid_url)
 
 
 def test_imf_metadata_valid_url():
-    URL = ("http://dataservices.imf.org/REST/SDMX_JSON.svc/"
-           "CompactData/BOP/A.US.BXSTVPO_BP6_USD?startPeriod=2020")
+    URL = (
+        "http://dataservices.imf.org/REST/SDMX_JSON.svc/"
+        "CompactData/BOP/A.US.BXSTVPO_BP6_USD?startPeriod=2020"
+    )
     metadata = _imf_metadata(URL)
 
     assert isinstance(metadata, dict)
@@ -65,8 +71,10 @@ def test_imf_metadata_valid_url():
 
 
 def test_imf_metadata_invalid_url():
-    URL = ("http://dataservices.imf.org/REST/"
-           "SDMX_JSON.svc/CompactData/not_a_real_database/")
+    URL = (
+        "http://dataservices.imf.org/REST/"
+        "SDMX_JSON.svc/CompactData/not_a_real_database/"
+    )
 
     with pytest.raises(Exception):
         _imf_metadata(URL)
@@ -117,5 +125,14 @@ def test_imf_dimensions_inputs_only_param():
     assert dimensions_2.isna().sum().sum() == 2
 
 
-if __name__ == '__main__':
+def test_bad_request():
+    URL = "http://dataservices.imf.org/REST/SDMX_JSON.svc/CompactData/BOP_2017M06/A+M+Q.AF+AL+DZ+AO+AI+AG+AR+AM+AW+AU+AT+AZ+BS+BH+BD+BB+BY+BE+R1+BZ+BJ+BM+BT+BO+BA+BW+BR+BN+BG+BF+BI+KH+CM+CA+CV+CF+TD+CL+HK+MO+CN+CO+KM+CD+CG+CR+CI+HR+CW+1C_355+CY+CZ+CSH+DK+DJ+DM+DO+5Y+EC+EG+SV+GQ+ER+EE+ET+U2+FO+FJ+FI+FR+PF+NC+GA+GM+GE+DE+GH+GR+GD+GT+GN+GW+GY+HT+HN+HU+IS+IN+ID+IR+IQ+IE+IL+IT+JM+JP+JO+KZ+KE+KI+KR+XK+KW+KG+LA+LV+LB+LS+LR+LY+LT+LU+MK+MG+MW+MY+MV+ML+MT+MH+MR+MU+MX+FM+MD+MN+ME+MS+MA+MZ+MM+NA+NP+NL+AN+NZ+NI+NE+NG+NO+OM+PK+PW+PA+PG+PY+PE+PH+PL+PT+QA+RO+RU+RW+WS+ST+SA+SN+RS+SC+SL+SG+SX+SK+SI+SB+SO+ZA+SS+ES+LK+KN+LC+VC+SD+SR+SZ+SE+CH+SY+TW+TJ+TZ+TH+TL+TG+TO+TT+TN+TR+TM+TV+UG+UA+GB+US+UY+VU+VE+VN+PS+1C_473+1C_459+YE+YUC+ZM+ZW+BOP_Reporters+All_Countries+IIP_Reporters.IADDF_BP6_EUR"
+
+    with pytest.raises(ValueError) as excinfo:
+        _download_parse(URL)
+
+    assert "Too many parameters supplied" in str(excinfo.value)
+
+
+if __name__ == "__main__":
     pytest.main()

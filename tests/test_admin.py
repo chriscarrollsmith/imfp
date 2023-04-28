@@ -16,7 +16,7 @@ def test_imf_app_name():
     with pytest.raises(ValueError):
         imf_app_name(None)
     with pytest.raises(ValueError):
-        imf_app_name(float('nan'))
+        imf_app_name(float("nan"))
     with pytest.raises(ValueError):
         imf_app_name("z" * 256)
     with pytest.raises(ValueError):
@@ -26,5 +26,5 @@ def test_imf_app_name():
     assert os.getenv("IMF_APP_NAME") == "imfr_admin_functions_tester"
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pytest.main()

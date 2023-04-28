@@ -1,5 +1,14 @@
 # All updates will be detailed here
 
+## Version 1.0.6
+
+- Corrected bug in URL handling when user omits one or more parameters
+
+- Improved error handling to prevent confusing JSON decode errors from being passed to user
+
+- Implemented formatting with `black` library
+
+
 ## Version 1.0.5
 
 - Minor adjustments to project docs

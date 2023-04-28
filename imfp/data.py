@@ -26,21 +26,19 @@ def imf_databases(times=3):
     # Return first 6 IMF database IDs and descriptions
     databases = imf_databases()
     """
-    url = 'http://dataservices.imf.org/REST/SDMX_JSON.svc/Dataflow'
+    url = "http://dataservices.imf.org/REST/SDMX_JSON.svc/Dataflow"
     raw_dl = _download_parse(url, times)
 
     database_id = [
-        dataflow['KeyFamilyRef']['KeyFamilyID']
-        for dataflow in raw_dl['Structure']['Dataflows']['Dataflow']
+        dataflow["KeyFamilyRef"]["KeyFamilyID"]
+        for dataflow in raw_dl["Structure"]["Dataflows"]["Dataflow"]
     ]
 
     description = [
-            dataflow['Name']['#text']
-            for dataflow in raw_dl['Structure']['Dataflows']['Dataflow']
-        ]
-    database_list = DataFrame(
-            {'database_id': database_id, 'description': description}
-        )
+        dataflow["Name"]["#text"]
+        for dataflow in raw_dl["Structure"]["Dataflows"]["Dataflow"]
+    ]
+    database_list = DataFrame({"database_id": database_id, "description": description})
     return database_list
 
 
@@ -74,50 +72,51 @@ def imf_parameters(database_id, times=2):
     params = imf_parameters(database_id='PCPS')
     """
     if not database_id:
-        raise ValueError('Must supply database_id. Use imf_databases to find.')
+        raise ValueError("Must supply database_id. Use imf_databases to find.")
 
-    url = 'http://dataservices.imf.org/REST/SDMX_JSON.svc/CodeList/'
+    url = "http://dataservices.imf.org/REST/SDMX_JSON.svc/CodeList/"
     try:
         codelist = _imf_dimensions(database_id, times)
     except ValueError as e:
-        if 'There is an issue' in str(e):
-            raise ValueError(f"{e}\n\nDid you supply a valid database_id? "
-                             "Use imf_databases to find.")
+        if "There is an issue" in str(e):
+            raise ValueError(
+                f"{e}\n\nDid you supply a valid database_id? "
+                "Use imf_databases to find."
+            )
         else:
             raise ValueError(e)
 
     def fetch_parameter_data(k, url, times):
-        if codelist.loc[k, 'parameter'] == 'freq':
+        if codelist.loc[k, "parameter"] == "freq":
             return DataFrame(
-                    {
-                        "input_code": ["A", "M", "Q"],
-                        "description": ["Annual", "Monthly", "Quarterly"]
-                    }
-                )
+                {
+                    "input_code": ["A", "M", "Q"],
+                    "description": ["Annual", "Monthly", "Quarterly"],
+                }
+            )
         else:
-            raw = _download_parse(
-                    url + codelist.loc[k, 'code'], times
-                )['Structure']['CodeLists']['CodeList']['Code']
+            raw = _download_parse(url + codelist.loc[k, "code"], times)["Structure"][
+                "CodeLists"
+            ]["CodeList"]["Code"]
             if isinstance(raw, list):
                 return DataFrame(
-                            {
-                                "input_code": [code['@value'] for code in raw],
-                                "description": [code['Description']['#text']
-                                                for code in raw]
-                            }
-                        )
+                    {
+                        "input_code": [code["@value"] for code in raw],
+                        "description": [code["Description"]["#text"] for code in raw],
+                    }
+                )
             else:
                 return DataFrame(
-                        {
-                            "input_code": [raw['@value']],
-                            "description": [raw['Description']['#text']]
-                        }
-                    )
+                    {
+                        "input_code": [raw["@value"]],
+                        "description": [raw["Description"]["#text"]],
+                    }
+                )
 
     parameter_list = {
-            codelist.loc[k, 'parameter']: fetch_parameter_data(k, url, times)
-            for k in range(codelist.shape[0])
-        }
+        codelist.loc[k, "parameter"]: fetch_parameter_data(k, url, times)
+        for k in range(codelist.shape[0])
+    }
 
     return parameter_list
 
@@ -153,16 +152,18 @@ def imf_parameter_defs(database_id, times=3, inputs_only=True):
     param_defs = imf_parameter_defs(database_id='PCPS')
     """
     if not database_id:
-        raise ValueError('Must supply database_id. Use imf_databases to find.')
+        raise ValueError("Must supply database_id. Use imf_databases to find.")
 
     try:
         parameterlist = _imf_dimensions(database_id, times, inputs_only)[
-                ['parameter', 'description']
-            ]
+            ["parameter", "description"]
+        ]
     except ValueError as e:
-        if 'There is an issue' in str(e):
-            raise ValueError(f"{e}\n\nDid you supply a valid database_id? "
-                             "Use imf_databases to find.")
+        if "There is an issue" in str(e):
+            raise ValueError(
+                f"{e}\n\nDid you supply a valid database_id? "
+                "Use imf_databases to find."
+            )
         else:
             raise ValueError(e)
 
@@ -170,11 +171,16 @@ def imf_parameter_defs(database_id, times=3, inputs_only=True):
 
 
 def imf_dataset(
-            database_id: str, parameters: dict = None, start_year: int = None,
-            end_year: int = None, return_raw: bool = False,
-            print_url: bool = False, times: int = 3,
-            include_metadata: bool = False, **kwargs
-        ):
+    database_id: str,
+    parameters: dict = None,
+    start_year: int = None,
+    end_year: int = None,
+    return_raw: bool = False,
+    print_url: bool = False,
+    times: int = 3,
+    include_metadata: bool = False,
+    **kwargs,
+):
     """
     Download a data series from the IMF.
 
@@ -224,101 +230,146 @@ def imf_dataset(
         try:
             start_year = str(start_year)
             if start_year.isdigit() and len(start_year) == 4:
-                years['startPeriod'] = start_year
+                years["startPeriod"] = start_year
             else:
-                raise ValueError("start_year must be a four-digit number, "
-                                 "either integer or string.")
+                raise ValueError(
+                    "start_year must be a four-digit number, "
+                    "either integer or string."
+                )
         except Exception:
-            raise ValueError("start_year must be a four-digit number, either "
-                             "integer or string.")
+            raise ValueError(
+                "start_year must be a four-digit number, either " "integer or string."
+            )
     if end_year is not None:
         try:
             end_year = str(end_year)
             if end_year.isdigit() and len(end_year) == 4:
-                years['endPeriod'] = end_year
+                years["endPeriod"] = end_year
             else:
-                raise ValueError("end_year must be a four-digit number, "
-                                 "either integer or string")
+                raise ValueError(
+                    "end_year must be a four-digit number, " "either integer or string"
+                )
         except Exception:
-            raise ValueError("end_year must be a four-digit number, "
-                             "either integer or string")
+            raise ValueError(
+                "end_year must be a four-digit number, " "either integer or string"
+            )
 
     data_dimensions = imf_parameters(database_id, times)
 
     if parameters is not None:
         if kwargs:
-            warn("Parameters list argument cannot be combined with character "
-                 "vector parameters arguments. Character vector parameters "
-                 "arguments will be ignored.")
+            warn(
+                "Parameters list argument cannot be combined with character "
+                "vector parameters arguments. Character vector parameters "
+                "arguments will be ignored."
+            )
         for key in parameters:
             if key not in data_dimensions:
-                raise ValueError(f"{key} not valid parameter(s) for the "
-                                 f"{database_id} database. Use "
-                                 f"imf_parameters('{database_id}') to get "
-                                 "valid parameters.")
+                raise ValueError(
+                    f"{key} not valid parameter(s) for the "
+                    f"{database_id} database. Use "
+                    f"imf_parameters('{database_id}') to get "
+                    "valid parameters."
+                )
             invalid_keys = []
-            for x in list(parameters[key]['input_code']):
-                if x not in list(data_dimensions[key]['input_code']):
+            for x in list(parameters[key]["input_code"]):
+                if x not in list(data_dimensions[key]["input_code"]):
                     invalid_keys.append(x)
             if len(invalid_keys) > 0:
-                warn(f"{invalid_keys} not valid value(s) for {key} and will "
-                     f"be ignored. Use imf_parameters('{database_id}') to get "
-                     "valid parameters.")
-            data_dimensions[key] = data_dimensions[key].iloc[[
-                    index for index, x in enumerate(
-                        data_dimensions[key]['input_code']
-                    ) if x in list(parameters[key]['input_code'])
-                ]]
+                warn(
+                    f"{invalid_keys} not valid value(s) for {key} and will "
+                    f"be ignored. Use imf_parameters('{database_id}') to get "
+                    "valid parameters."
+                )
+            if (
+                set(parameters[key]["input_code"])
+                == set(data_dimensions[key]["input_code"])
+                or len(parameters[key]) == 0
+            ):
+                data_dimensions[key] = data_dimensions[key].iloc[0:0]
+            data_dimensions[key] = data_dimensions[key].iloc[
+                [
+                    index
+                    for index, x in enumerate(data_dimensions[key]["input_code"])
+                    if x in list(parameters[key]["input_code"])
+                ]
+            ]
+        for key in data_dimensions:
+            if key not in parameters:
+                data_dimensions[key] = data_dimensions[key].iloc[0:0]
 
     elif kwargs:
         for key in kwargs:
             if key not in data_dimensions:
-                raise ValueError(f"{key} not valid parameter(s) for the "
-                                 f"{database_id} database. Use "
-                                 f"imf_parameters('{database_id}') to get "
-                                 "valid parameters.")
+                raise ValueError(
+                    f"{key} not valid parameter(s) for the "
+                    f"{database_id} database. Use "
+                    f"imf_parameters('{database_id}') to get "
+                    "valid parameters."
+                )
             invalid_vals = []
             if not isinstance(kwargs[key], list):
                 kwargs[key] = [kwargs[key]]
             for x in kwargs[key]:
-                if x not in data_dimensions[key]['input_code'].tolist():
+                if x not in data_dimensions[key]["input_code"].tolist():
                     invalid_vals.append(x)
             if len(invalid_vals) > 0:
-                warn(f"{invalid_vals} not valid value(s) for {key} and will "
-                     f"be ignored. Use imf_parameters('{database_id}') to get "
-                     "valid parameters.")
-            data_dimensions[key] = data_dimensions[key].iloc[[
-                    index for index, x in enumerate(
-                        data_dimensions[key]['input_code']
-                    ) if x in kwargs[key]
-                ]]
+                warn(
+                    f"{invalid_vals} not valid value(s) for {key} and will "
+                    f"be ignored. Use imf_parameters('{database_id}') to get "
+                    "valid parameters."
+                )
+            if (
+                set(kwargs[key]) == set(data_dimensions[key]["input_code"].tolist())
+                or len(kwargs[key]) == 0
+            ):
+                data_dimensions[key] = data_dimensions[key].iloc[0:0]
+            data_dimensions[key] = data_dimensions[key].iloc[
+                [
+                    index
+                    for index, x in enumerate(data_dimensions[key]["input_code"])
+                    if x in kwargs[key]
+                ]
+            ]
+        for key in data_dimensions:
+            if key not in kwargs:
+                data_dimensions[key] = data_dimensions[key].iloc[0:0]
 
     else:
-        print("User supplied no filter parameters for the API request. "
-              "imf_dataset will attempt to request the entire database.")
+        print(
+            "User supplied no filter parameters for the API request. "
+            "imf_dataset will attempt to request the entire database."
+        )
         for key in data_dimensions:
             data_dimensions[key] = data_dimensions[key].iloc[0:0]
 
-    parameter_string = '.'.join(['+'.join(data_dimensions[key]['input_code'])
-                                 for key in data_dimensions])
+    parameter_string = ".".join(
+        ["+".join(data_dimensions[key]["input_code"]) for key in data_dimensions]
+    )
 
-    url = (f"http://dataservices.imf.org/REST/SDMX_JSON.svc/"
-           f"CompactData/{database_id}/{parameter_string}")
+    url = (
+        f"http://dataservices.imf.org/REST/SDMX_JSON.svc/"
+        f"CompactData/{database_id}/{parameter_string}"
+    )
     if years:
         url += f"?{urlencode(years)}"
 
     if print_url:
         print(url)
 
-    raw_dl = _download_parse(url, times)['CompactData']['DataSet']
+    raw_dl = _download_parse(url, times)["CompactData"]["DataSet"]
     try:
-        raw_dl = raw_dl['Series']
+        raw_dl = raw_dl["Series"]
     except Exception:
-        raise ValueError("No data found for that combination of parameters. "
-                         "Try making your request less restrictive.")
+        raise ValueError(
+            "No data found for that combination of parameters. "
+            "Try making your request less restrictive."
+        )
     if raw_dl is None:
-        raise ValueError("No data found for that combination of parameters. "
-                         "Try making your request less restrictive.")
+        raise ValueError(
+            "No data found for that combination of parameters. "
+            "Try making your request less restrictive."
+        )
 
     if return_raw:
         if include_metadata:
@@ -340,7 +391,6 @@ def imf_dataset(
         raw_dl = [raw_dl]
 
     def process_data(item):
-
         # Make a data frame of dict items excluding 'Obs'
         if all(is_scalar(value) for value in without_obs(item).values()):
             param_vals = DataFrame.from_dict([without_obs(item)])
@@ -348,12 +398,12 @@ def imf_dataset(
             raise ValueError("Expected item to be scalar, but it's not.")
 
         # Make a data frame from the dicts in 'Obs'
-        if not isinstance(item['Obs'], list):
-            item['Obs'] = [item['Obs']]
-        series = DataFrame.from_dict(item['Obs'])
+        if not isinstance(item["Obs"], list):
+            item["Obs"] = [item["Obs"]]
+        series = DataFrame.from_dict(item["Obs"])
 
         # Create a copy of param_vals for every row in series
-        param_vals = concat([param_vals]*len(series)).reset_index(drop=True)
+        param_vals = concat([param_vals] * len(series)).reset_index(drop=True)
 
         # Column bind param_vals to series
         output = concat([param_vals, series], axis=1)

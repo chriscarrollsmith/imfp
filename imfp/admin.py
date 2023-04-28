@@ -25,19 +25,26 @@ def imf_app_name(name="imfp"):
     """
 
     if not isinstance(name, str) or len(name) > 255:
-        raise ValueError("Please provide a valid string as the application "
-                         "name (max length: 255 characters).")
+        raise ValueError(
+            "Please provide a valid string as the application "
+            "name (max length: 255 characters)."
+        )
 
     if name == "imfp" or name == "":
-        warn("Best practice is to choose a unique app name. Use of a default "
-             "or empty app name may result in hitting API rate limits and "
-             "being blocked by the API.", UserWarning)
+        warn(
+            "Best practice is to choose a unique app name. Use of a default "
+            "or empty app name may result in hitting API rate limits and "
+            "being blocked by the API.",
+            UserWarning,
+        )
 
     forbidden_chars = set(range(32)) | {127}
     if any(ord(c) in forbidden_chars for c in name):
-        raise ValueError("The application name contains forbidden characters. "
-                         "Please remove control characters and non-printable "
-                         "ASCII characters.")
+        raise ValueError(
+            "The application name contains forbidden characters. "
+            "Please remove control characters and non-printable "
+            "ASCII characters."
+        )
 
     environ["IMF_APP_NAME"] = name
 

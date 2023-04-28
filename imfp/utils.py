@@ -77,42 +77,66 @@ def _download_parse(URL, times=3):
         try:
             app_name = f'imfp/{get_distribution("imfp").version}'
         except DistributionNotFound:
-            app_name = 'imfp'
+            app_name = "imfp"
 
-    headers = {'Accept': 'application/json', 'User-Agent': app_name}
+    headers = {"Accept": "application/json", "User-Agent": app_name}
     for _ in range(times):
-        try:
-            response = _imf_get(URL, headers=headers)
-            content = response.text
-            status = response.status_code
-            json_parsed = loads(content)
-            return json_parsed
-        except JSONDecodeError:
-            if ('Rejected' in content or 'Bandwidth' in content):
+        response = _imf_get(URL, headers=headers)
+        content = response.text
+        status = response.status_code
+
+        if status != 200 or ("<" in content and ">" in content):
+            matches = re.search(">([^<>]+)<", content)  # Updated regular expression
+            inner_text = matches.group(1) if matches else content
+            output_string = re.sub(" GKey\\s*=\\s*[a-f0-9-]+", "", inner_text)
+
+            if "Rejected" in content or "Bandwidth" in content:
+                err_message = (
+                    f"API request failed. URL: '{URL}' "
+                    f"Status: '{status}', "
+                    f"Content: '{output_string}'\n\n"
+                    "API may be overwhelmed by too many "
+                    "requests. Take a break and try again."
+                )
+            elif "Service" in content:
+                err_message = (
+                    f"API request failed. URL: '{URL}' "
+                    f"Status: '{status}', "
+                    f"Content: '{output_string}'\n\n"
+                    "Your requested dataset may be too large. "
+                    "Try narrowing your request and try again."
+                )
+            elif status == 400:
+                err_message = (
+                    f"API request failed. URL: '{URL}' "
+                    f"Status: '{status}', "
+                    f"Content: '{output_string}'\n\n"
+                    "Too many parameters supplied. "
+                    "Please narrow the request and try again."
+                )
+            else:
+                err_message = (
+                    f"API request failed. URL: '{URL}' "
+                    f"Status: '{status}', "
+                    f"Content: '{output_string}'"
+                )
+
+            if _ < times - 1:
+                sleep(5 ** (_ + 1))
+            else:
+                raise ValueError(err_message)
+        else:
+            try:
+                json_parsed = loads(content)
+                return json_parsed
+            except JSONDecodeError:
                 if _ < times - 1:
                     sleep(5 ** (_ + 1))
                 else:
-                    matches = re.search("<[^>]+>(.*?)<\\/[^>]+>", content)
-                    inner_text = matches.group(1)
-                    output_string = re.sub(
-                        " GKey\\s*=\\s*[a-f0-9-]+", "", inner_text
+                    raise ValueError(
+                        f"Content from API could not be parsed as JSON. URL: '{URL}' "
+                        f"Status: '{status}', Content: '{content}'"
                     )
-                    err_message = (f"API request failed. URL: '{URL}' "
-                                   f"Status: '{status}', "
-                                   f"Content: '{output_string}'\n\n"
-                                   "API may be overwhelmed by too many "
-                                   "requests. Take a break and try again.")
-                    raise ValueError(err_message)
-            else:
-                matches = re.search("<[^>]+>(.*?)<\\/[^>]+>", content)
-                inner_text = matches.group(1)
-                output_string = re.sub(
-                    " GKey\\s*=\\s*[a-f0-9-]+", "", inner_text
-                )
-                err_message = (f"API request failed. URL: '{URL}' "
-                               f"Status: '{status}', "
-                               f"Content: '{output_string}'")
-                raise ValueError(err_message)
 
 
 def _imf_dimensions(database_id, times=3, inputs_only=True):
@@ -131,38 +155,38 @@ def _imf_dimensions(database_id, times=3, inputs_only=True):
         pandas.DataFrame: A DataFrame containing the parameter names and their
         corresponding codes and descriptions.
     """
-    URL = (f'http://dataservices.imf.org/REST/SDMX_JSON.svc/DataStructure/'
-           f'{database_id}')
+    URL = (
+        f"http://dataservices.imf.org/REST/SDMX_JSON.svc/DataStructure/"
+        f"{database_id}"
+    )
     raw_dl = _download_parse(URL, times)
 
     code = []
-    for item in raw_dl['Structure']['CodeLists']['CodeList']:
-        code.append(item['@id'])
+    for item in raw_dl["Structure"]["CodeLists"]["CodeList"]:
+        code.append(item["@id"])
     description = []
-    for item in raw_dl['Structure']['CodeLists']['CodeList']:
-        description.append(item['Name']['#text'])
-    codelist_df = DataFrame({'code': code, 'description': description})
+    for item in raw_dl["Structure"]["CodeLists"]["CodeList"]:
+        description.append(item["Name"]["#text"])
+    codelist_df = DataFrame({"code": code, "description": description})
 
     params = [
-        dim['@conceptRef'].lower()
+        dim["@conceptRef"].lower()
         for dim in (
-            raw_dl['Structure']['KeyFamilies']['KeyFamily']['Components']
-            ['Dimension']
+            raw_dl["Structure"]["KeyFamilies"]["KeyFamily"]["Components"]["Dimension"]
         )
-        ]
+    ]
     codes = [
-        dim['@codelist']
+        dim["@codelist"]
         for dim in (
-            raw_dl['Structure']['KeyFamilies']['KeyFamily']['Components']
-            ['Dimension']
+            raw_dl["Structure"]["KeyFamilies"]["KeyFamily"]["Components"]["Dimension"]
         )
-        ]
-    param_code_df = DataFrame({'parameter': params, 'code': codes})
+    ]
+    param_code_df = DataFrame({"parameter": params, "code": codes})
 
     if inputs_only:
-        result_df = param_code_df.merge(codelist_df, on='code', how='left')
+        result_df = param_code_df.merge(codelist_df, on="code", how="left")
     else:
-        result_df = param_code_df.merge(codelist_df, on='code', how='outer')
+        result_df = param_code_df.merge(codelist_df, on="code", how="outer")
 
     return result_df
 
@@ -203,15 +227,12 @@ def _imf_metadata(URL, times=3):
             raw_dl["GenericMetadata"]["Header"]["Sender"]["Name"]["@xml:lang"]
         ),
         "timestamp": raw_dl["GenericMetadata"]["Header"]["Prepared"],
-        "custodian": (
-            raw_dl["GenericMetadata"]["Header"]["Sender"]["Name"]["#text"]
-        ),
+        "custodian": (raw_dl["GenericMetadata"]["Header"]["Sender"]["Name"]["#text"]),
         "custodian_url": (
             raw_dl["GenericMetadata"]["Header"]["Sender"]["Contact"]["URI"]
         ),
         "custodian_telephone": (
-            raw_dl["GenericMetadata"]["Header"]["Sender"]["Contact"]
-            ["Telephone"]
-        )
+            raw_dl["GenericMetadata"]["Header"]["Sender"]["Contact"]["Telephone"]
+        ),
     }
     return output

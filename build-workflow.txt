@@ -2,8 +2,8 @@ Change code
 Change README
 Change NEWS
 
-flake8 imfp
-flake8 tests
+black imfp
+black tests
 py README_files\render.py
 poetry version patch
 poetry lock
