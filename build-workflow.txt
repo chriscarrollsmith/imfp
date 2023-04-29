@@ -5,7 +5,7 @@ Change NEWS
 black imfp
 black tests
 py README_files\render.py
-poetry version patch
+poetry version patch/minor/major
 poetry lock
 poetry build
 poetry install

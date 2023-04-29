@@ -1,13 +1,52 @@
 import pytest
+import os
 import pandas as pd
-from imfp import imf_databases, imf_parameters, imf_parameter_defs, imf_dataset
+from imfp import (
+    imf_databases,
+    imf_parameters,
+    imf_parameter_defs,
+    imf_dataset,
+    set_imf_wait_time,
+)
+from imfp.utils import _imf_save_response, _imf_use_cache
 
 
-# Set a stricter rate limit for cross-platform testing
-_imf_wait_time = 2.5
+# Set test configuration options
+create_cache = False
+use_cache = True
+wait_time = 0
 
 
-def test_imf_databases():
+@pytest.fixture
+def set_options(monkeypatch):
+    # Create the responses directory if it doesn't exist
+    os.makedirs("tests/responses", exist_ok=True)
+
+    # Store the original values of the options
+    original_save_response = _imf_save_response
+    original_use_cache = _imf_use_cache
+    original_wait_time = os.environ.get("IMF_WAIT_TIME", None)
+
+    # Set caching options for response mocking
+    monkeypatch.setattr("imfp.utils._imf_save_response", create_cache)
+    monkeypatch.setattr("imfp.utils._imf_use_cache", use_cache)
+    set_imf_wait_time(wait_time)
+
+    # Perform the test
+    yield float(os.environ.get("IMF_WAIT_TIME"))
+
+    # Restore the original values of the options during teardown
+    monkeypatch.setattr("imfp.utils._imf_save_response", original_save_response)
+    monkeypatch.setattr("imfp.utils._imf_use_cache", original_use_cache)
+    if original_wait_time is not None:
+        os.environ["IMF_WAIT_TIME"] = original_wait_time
+    else:
+        os.environ.pop("IMF_WAIT_TIME", None)
+
+
+def test_imf_databases(set_options):
+    assert (wait_time - 0.1) < set_options < (wait_time + 0.1)
+
     result = imf_databases()
     assert isinstance(result, pd.DataFrame), "Result should be a pandas DataFrame"
     expected_column_names = ["database_id", "description"]
@@ -20,7 +59,9 @@ def test_imf_databases():
     ), "Both columns should have the same length"
 
 
-def test_imf_parameter_defs():
+def test_imf_parameter_defs(set_options):
+    assert (wait_time - 0.1) < set_options < (wait_time + 0.1)
+
     result = imf_parameter_defs("BOP_2017M08")
     assert isinstance(result, pd.DataFrame), "Result should be a pandas DataFrame"
     assert result.shape[0] == 3, "Result should have 3 rows"
@@ -45,7 +86,9 @@ def test_imf_parameter_defs():
         imf_parameters("not_a_real_database", times=1)
 
 
-def test_imf_parameters():
+def test_imf_parameters(set_options):
+    assert (wait_time - 0.1) < set_options < (wait_time + 0.1)
+
     params = imf_parameters("BOP")
     assert all(params["freq"]["input_code"] == ["A", "M", "Q"])
     with pytest.raises(Exception):
@@ -54,7 +97,9 @@ def test_imf_parameters():
         imf_parameters(database_id="not_a_real_database", times=1)
 
 
-def test_imf_dataset_error_handling():
+def test_imf_dataset_error_handling(set_options):
+    assert (wait_time - 0.1) < set_options < (wait_time + 0.1)
+
     params = imf_parameters("FISCALDECENTRALIZATION")
     params["freq"] = params["freq"][0:1]
     params["ref_area"] = params["ref_area"][5:10]
@@ -114,7 +159,9 @@ def test_imf_dataset_error_handling():
         )
 
 
-def test_imf_dataset_params_list_request():
+def test_imf_dataset_params_list_request(set_options):
+    assert (wait_time - 0.1) < set_options < (wait_time + 0.1)
+
     params = imf_parameters("GFSR2019")
     params["freq"] = params["freq"][params["freq"]["input_code"].str.contains("A")]
     params["ref_area"] = params["ref_area"][
@@ -134,7 +181,9 @@ def test_imf_dataset_params_list_request():
     assert all(ref_sector == "S13" for ref_sector in df["ref_sector"])
 
 
-def test_imf_dataset_vector_parameters_request():
+def test_imf_dataset_vector_parameters_request(set_options):
+    assert (wait_time - 0.1) < set_options < (wait_time + 0.1)
+
     df = imf_dataset(
         database_id="AFRREO",
         indicator=["TTT_IX", "GGX_G01_GDP_PT"],
@@ -148,7 +197,9 @@ def test_imf_dataset_vector_parameters_request():
     )
 
 
-def test_imf_dataset_data_frame_prep():
+def test_imf_dataset_data_frame_prep(set_options):
+    assert (wait_time - 0.1) < set_options < (wait_time + 0.1)
+
     case_1 = imf_dataset(
         database_id="WHDREO201910",
         freq="A",
@@ -197,7 +248,9 @@ def test_imf_dataset_data_frame_prep():
     )
 
 
-def test_imf_dataset_include_metadata():
+def test_imf_dataset_include_metadata(set_options):
+    assert (wait_time - 0.1) < set_options < (wait_time + 0.1)
+
     output = imf_dataset(
         database_id="WHDREO201910",
         freq="A",

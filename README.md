@@ -36,32 +36,8 @@ import imfp
 import seaborn
 ```
 
-### Setting a Unique Application Name with imf_app_name
 
-`imfp.imf_app_name()` allows users to set a custom application name to be used when making API calls to the IMF API. The IMF API has an application-based rate limit of 50 requests per second, with the application identified by the "user_agent" variable in the request header.
-
-This could prove problematic if the `imfp` library became too popular and too many users tried to make simultaneous API requests using the default app name. By setting a custom application name, users can avoid hitting rate limits and being blocked by the API. `imfp.imf_app_name()` sets the application name by changing the `IMF_APP_NAME` variable in the environment. If this variable doesn't exist, `imfp.imf_app_name()` will create it.
-
-To set a custom application name, simply call the `imfp.imf_app_name()` function with your desired application name as an argument:
-
-
-```python
-# Set custom app name as an environment variable
-imfp.imf_app_name("my_custom_app_name")
-```
-
-
-
-The function will throw an error if the provided name is missing, NULL, NA, not a string, or longer than 255 characters. If the provided name is "imfr" (the default) or an empty string, the function will issue a warning recommending the use of a unique app name to avoid hitting rate limits.
-
-### Adjusting the rate limit with _imf_wait_time
-
-During import of `imfp`, a variable called _imf_wait_time is set to a default value of 1.5. This is the mandatory enforced wait time between API calls, to prevent repeated or recursive calls from exceeding the limit. This wait time should be sufficient for most applications. However, if you are running parallel processes using `imfp` (e.g. during cross-platform testing), this wait time may be insufficient to prevent you from running up against the API's rate and bandwidth limits. You can increase this wait time by simply changing the variable value. For instance, to increase the between-call wait time by one second, use `_imf_wait_time += 1`.
-
-Also note that by default, `imfp` functions will retry any API call rejected for bandwidth or rate limit reasons. The number of times `imfp` will attempt the call is set by the `times` argument, with a default value of 3. (With this value, requests will be retried twice after an initial failure.) Note that `imfp` enforces an exponentially increasing wait time between function calls, with a base wait time of 5 seconds on the first retry, so it is not recommended to set a high value for `times`.
-
-
-### Fetching an Index of Databases with the imf_databases Function
+### Fetching an Index of Databases with the `imf_databases` Function
 
 The `imfp` package introduces four core functions: `imfp.imf_databases`, `imfp.imf_parameters`, `imfp.imf_parameter_defs`, and `imfp.imf_dataset`. The function for downloading datasets is `imfp.imf_dataset`, but you will need the other functions to determine what arguments to supply to `imfp.imf_dataset`. For instance, all calls to `imfp.imf_dataset` require a `database_id`. This is because the IMF serves many different databases through its API, and the API needs to know which of these many databases you're requesting data from. To obtain a list of databases, use `imfp.imf_databases`, like so:
 
@@ -211,7 +187,7 @@ databases[databases['description'].str.contains("Commodity")]
 
 
 
-### Fetching a List of Parameters and Input Codes with imf_parameters and imf_parameter_defs
+### Fetching a List of Parameters and Input Codes with `imf_parameters` and `imf_parameter_defs`
 
 Once you have a `database_id`, it’s possible to make a call to `imfp.imf_dataset` to fetch the entire database: `imfp.imf_dataset(database_id)`. However, while this will succeed for a few small databases, it will fail for all of the larger ones. And even in the rare case when it succeeds, fetching an entire database can take a long time. You’re much better off supplying additional filter parameters to reduce the size of your request.
 
@@ -356,7 +332,7 @@ df = imfp.imf_databases()
 View(df)
 ```
 
-### Supplying Parameter Arguments to imf_dataset: A Tale of Two Workflows
+### Supplying Parameter Arguments to `imf_dataset`: A Tale of Two Workflows
 
 There are two ways to supply parameters to `imfp.imf_dataset`: by supplying list arguments or by supplying a modified parameters dict. The list arguments workflow will be more intuitive for most users, but the dict argument workflow requires a little less code.
 
@@ -577,7 +553,7 @@ df.head()
 
 
 
-### Working with the Returned Data Frame
+## Working with the Returned Data Frame
 
 Note that all columns in the returned data frame are character vectors, and that to plot the series we will need to convert to valid numeric or date formats. Using `seaborn` with `hue`, we can plot different indicators in different colors:
 
@@ -695,3 +671,33 @@ df.head()
 </div>
 
 
+
+## Rate and Bandwidth Limit Management
+
+### Setting a Unique Application Name with `set_imf_app_name`
+
+`imfp.set_imf_app_name()` allows users to set a custom application name to be used when making API calls to the IMF API. The IMF API has an application-based rate limit of 50 requests per second, with the application identified by the "user_agent" variable in the request header.
+
+This could prove problematic if the `imfp` library became too popular and too many users tried to make simultaneous API requests using the default app name. By setting a custom application name, users can avoid hitting rate limits and being blocked by the API. `imfp.set_imf_app_name()` sets the application name by changing the `IMF_APP_NAME` variable in the environment. If this variable doesn't exist, `imfp.set_imf_app_name()` will create it.
+
+To set a custom application name, simply call the `imfp.set_imf_app_name()` function with your desired application name as an argument:
+
+
+```python
+# Set custom app name as an environment variable
+imfp.set_imf_app_name("my_custom_app_name")
+```
+
+
+
+The function will throw an error if the provided name is missing, NULL, NA, not a string, or longer than 255 characters. If the provided name is "imfr" (the default) or an empty string, the function will issue a warning recommending the use of a unique app name to avoid hitting rate limits.
+
+### Changing the enforced wait time between API calls with `set_imf_wait_time`
+
+By default, `imfp` enforces a mandatory 1.5-second wait time between API calls to prevent repeated or recursive calls from exceeding the API's bandwidth/rate limit. This wait time should be sufficient for most applications. However, if you are running parallel processes using `imfp` (e.g. during cross-platform testing), this wait time may be insufficient to prevent you from running up against the API's rate and bandwidth limits. You can change this wait time by calling the `set_imf_wait_time` function with a numeric value, in seconds. For instance, to enforce a five-second wait time between API calls, use `set_imf_wait_time(10)`.
+
+Also note that by default, `imfp` functions will retry any API call rejected for bandwidth or rate limit reasons. The number of times `imfp` will attempt the call is set by the `times` argument, with a default value of 3. (With this value, requests will be retried twice after an initial failure.) Note that `imfp` enforces an exponentially increasing wait time between function calls, with a base wait time of 5 seconds on the first retry, so it is not recommended to set a high value for `times`.
+
+## Contributing
+
+I would love to have your help in improving `imfr`. If you encounter a bug while using the library, please open an issue. Alternatively, fix the bug and open a pull request. Thanks in advance for your help!

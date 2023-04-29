@@ -1,17 +1,19 @@
-from os import environ
+from os import environ, path
+import hashlib
 from time import sleep, perf_counter
 from requests import get
-from json import loads, JSONDecodeError
+from json import loads, load, dump, JSONDecodeError
 from pandas import DataFrame
 from pkg_resources import get_distribution, DistributionNotFound
 import re
 
 
-def _min_wait_time_limited(min_wait_time):
+def _min_wait_time_limited(default_wait_time=1.5):
     def decorator(func):
         last_called = [0.0]
 
         def wrapper(*args, **kwargs):
+            min_wait_time = float(environ.get("IMF_WAIT_TIME", default_wait_time))
             elapsed = perf_counter() - last_called[0]
             left_to_wait = min_wait_time - elapsed
             if left_to_wait > 0:
@@ -25,10 +27,7 @@ def _min_wait_time_limited(min_wait_time):
     return decorator
 
 
-_imf_wait_time = 1.5
-
-
-@_min_wait_time_limited(_imf_wait_time)  # 1.5 seconds wait time between calls
+@_min_wait_time_limited()
 def _imf_get(url, headers):
     """
     A rate-limited wrapper around the requests.get method.
@@ -47,6 +46,10 @@ def _imf_get(url, headers):
         print(response.text)
     """
     return get(url, headers)
+
+
+_imf_use_cache = False
+_imf_save_response = False
 
 
 def _download_parse(URL, times=3):
@@ -70,6 +73,10 @@ def _download_parse(URL, times=3):
         number of retries.
     """
 
+    global _imf_use_cache, _imf_save_response
+    use_cache = _imf_use_cache
+    save_response = _imf_save_response
+
     app_name = environ.get("IMF_APP_NAME")
     if app_name:
         app_name = app_name[:255]
@@ -81,9 +88,22 @@ def _download_parse(URL, times=3):
 
     headers = {"Accept": "application/json", "User-Agent": app_name}
     for _ in range(times):
-        response = _imf_get(URL, headers=headers)
-        content = response.text
-        status = response.status_code
+        if use_cache:
+            cached_status, cached_content = _load_cached_response(URL)
+            if cached_content is not None:
+                content = cached_content
+                status = cached_status
+        else:
+            response = _imf_get(URL, headers=headers)
+            content = response.text
+            status = response.status_code
+
+        if save_response:
+            file_name = hashlib.sha256(URL.encode()).hexdigest()
+            file_path = f"tests/responses/{file_name}.json"
+            print(f"Saving response to: {file_path}")
+            with open(file_path, "w") as file:
+                dump({"status_code": status, "content": content}, file)
 
         if status != 200 or ("<" in content and ">" in content):
             matches = re.search("<[^>]+>(.*?)<\\/[^>]+>", content)
@@ -145,6 +165,17 @@ def _download_parse(URL, times=3):
                         f"Content from API could not be parsed as JSON. URL: '{URL}' "
                         f"Status: '{status}', Content: '{content}'"
                     )
+
+
+def _load_cached_response(URL):
+    file_name = hashlib.sha256(URL.encode()).hexdigest()
+    file_path = f"tests/responses/{file_name}.json"
+
+    if path.exists(file_path):
+        with open(file_path, "r") as file:
+            data = load(file)
+            return data.get("status_code"), data.get("content")
+    return None, None
 
 
 def _imf_dimensions(database_id, times=3, inputs_only=True):

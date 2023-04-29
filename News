@@ -1,5 +1,15 @@
 # All updates will be detailed here
 
+## Version 1.1.0
+
+- Implemented response mocking during unit tests
+
+- Removed between-calls wait time during unit tests
+
+- Changed wait time variable from a global variable to an environment variable
+
+- Introduced new `set_imf_wait_time` function
+
 ## Version 1.0.8
 
 - Handled a case where, apparently, certain databases have required request parameters

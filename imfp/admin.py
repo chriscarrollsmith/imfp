@@ -1,8 +1,9 @@
 from os import environ
 from warnings import warn
+from typing import Union
 
 
-def imf_app_name(name="imfp"):
+def set_imf_app_name(name: str = "imfp"):
     """
     Set the IMF Application Name.
 
@@ -49,3 +50,23 @@ def imf_app_name(name="imfp"):
     environ["IMF_APP_NAME"] = name
 
     return None
+
+
+def set_imf_wait_time(wait_time: Union[int, float] = 1.5):
+    """
+    Set the IMF wait time as an environment variable.
+
+    Args:
+        wait_time (Union[int, float], optional): The wait time in seconds to be set as an environment variable. Defaults to 1.5.
+
+    Raises:
+        TypeError: If the provided wait_time is not a numeric value (int or float).
+        ValueError: If the provided wait_time is not greater than 0.
+    """
+    if not isinstance(wait_time, (int, float)):
+        raise TypeError("Rate limit wait time must be a numeric value (int or float).")
+
+    if wait_time >= 0:
+        environ["IMF_WAIT_TIME"] = str(wait_time)
+    else:
+        raise ValueError("Rate limit wait time must be greater than or equal to 0.")
