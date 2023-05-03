@@ -700,4 +700,4 @@ Also note that by default, `imfp` functions will retry any API call rejected for
 
 ## Contributing
 
-I would love to have your help in improving `imfr`. If you encounter a bug while using the library, please open an issue. Alternatively, fix the bug and open a pull request. Thanks in advance for your help!
+I would love to have your help in improving `imfp`. If you encounter a bug while using the library, please open an issue. Alternatively, fix the bug and open a pull request. Thanks in advance for your help!
