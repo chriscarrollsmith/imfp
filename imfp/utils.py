@@ -4,7 +4,6 @@ from time import sleep, perf_counter
 from requests import get
 from json import loads, load, dump, JSONDecodeError
 from pandas import DataFrame
-from pkg_resources import get_distribution, DistributionNotFound
 import re
 
 
@@ -81,10 +80,7 @@ def _download_parse(URL, times=3):
     if app_name:
         app_name = app_name[:255]
     else:
-        try:
-            app_name = f'imfp/{get_distribution("imfp").version}'
-        except DistributionNotFound:
-            app_name = "imfp"
+        app_name = "imfp"
 
     headers = {"Accept": "application/json", "User-Agent": app_name}
     for _ in range(times):
