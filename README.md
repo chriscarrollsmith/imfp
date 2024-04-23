@@ -1,11 +1,12 @@
 # imfp
 
+[![Tests](https://github.com/chriscarrollsmith/imfp/actions/workflows/actions.yml/badge.svg)](https://github.com/chriscarrollsmith/imfp/actions/workflows/actions.yml)
 [![PyPI Version](https://img.shields.io/pypi/v/imfp.svg)](https://pypi.python.org/pypi/imfp)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 `imfp`, by Christopher C. Smith, is a Python package for downloading data from the [International Monetary
 Fund's](http://data.imf.org/) [RESTful JSON
-API](http://datahelp.imf.org/knowledgebase/articles/667681-using-json-restful-web-service). (R user? [See here](https://github.com/christophergandrud/imfr) for the R version, `imfr v2`.)
+API](http://datahelp.imf.org/knowledgebase/articles/667681-using-json-restful-web-service).
 
 ## Installation
 
@@ -95,7 +96,6 @@ databases.head()
 This function returns the IMF’s listing of 259 databases available through the API. (In reality, 8 of the listed databases are defunct and not actually available: FAS_2015, GFS01, FM202010, APDREO202010, AFRREO202010, WHDREO202010, BOPAGG_2020, DOT_2020Q1.)
 
 To view and explore the database list, it’s possible to explore subsets of the data frame by row number with `databases.loc`:
-
 
 
 ```python
@@ -696,6 +696,16 @@ The function will throw an error if the provided name is missing, NULL, NA, not 
 By default, `imfp` enforces a mandatory 1.5-second wait time between API calls to prevent repeated or recursive calls from exceeding the API's bandwidth/rate limit. This wait time should be sufficient for most applications. However, if you are running parallel processes using `imfp` (e.g. during cross-platform testing), this wait time may be insufficient to prevent you from running up against the API's rate and bandwidth limits. You can change this wait time by calling the `set_imf_wait_time` function with a numeric value, in seconds. For instance, to enforce a five-second wait time between API calls, use `set_imf_wait_time(10)`.
 
 Also note that by default, `imfp` functions will retry any API call rejected for bandwidth or rate limit reasons. The number of times `imfp` will attempt the call is set by the `times` argument, with a default value of 3. (With this value, requests will be retried twice after an initial failure.) Note that `imfp` enforces an exponentially increasing wait time between function calls, with a base wait time of 5 seconds on the first retry, so it is not recommended to set a high value for `times`.
+
+## Planned features
+
+- Implement automatic build/render of readthedocs documentation with Sphinx
+- Implement automatic build/release/publish of package updates
+- Move response mocking functionality from `_download_parse` to `_imf_get`
+- Investigate and implement different and more appropriate exception types, as we're currently handling too many different cases with `ValueError`
+- More fully investigate the types of metadata available through the API and the most appropriate way to return them when a user calls `include_metadata`
+- Implement optional response caching for `imf_databases` and `imf_parameters`
+- Simplify and modularize some of the code, particularly in `imf_dataset`
 
 ## Contributing
 

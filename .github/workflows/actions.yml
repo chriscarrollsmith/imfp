@@ -2,9 +2,9 @@ name: build-test
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
   pull_request:
-    branches: [main, master]
+    branches: [main]
 
 jobs:
   build:
@@ -25,21 +25,20 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install and configure Poetry
         uses: snok/install-poetry@v1
-      - name: Configure Poetry
+      - name: Build and install project
         run: |
-          poetry config virtualenvs.in-project true
-      - name: Install project
-        run: |
-          poetry install --no-interaction
+          poetry build
+          poetry install
       - name: Run tests with pytest
         run: |
-          source .venv/scripts/activate
+          poetry shell
           pytest --version
           pytest tests
-        if: runner.os == 'Windows'
-      - name: Activate venv other
+      - name: Publish any new version to PyPi
         run: |
-          source .venv/bin/activate
-          pytest --version
-          pytest tests
-        if: runner.os != 'Windows'
+      - name: Publish to PyPi
+        run: |
+          poetry publish --build
+          if [ $? -ne 0 ]; then
+            echo "Warning: Version has not been incremented. No new version published."
+          fi

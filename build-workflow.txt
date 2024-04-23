@@ -1,16 +1,14 @@
+Change README.ipynb
+
+poetry run python README_files/render.py
+
 Change code
-Change README
 Change NEWS
 
 black imfp
 black tests
-py README_files\render.py
-poetry version patch/minor/major
 poetry lock
-poetry build
 poetry install
-pytest tests
-poetry publish
-
+poetry version patch/minor/major
 Git commit/push
 Github release
