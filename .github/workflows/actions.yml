@@ -27,7 +27,7 @@ jobs:
         uses: snok/install-poetry@v1
       - name: Build and install project
         run: |
-          poetry build
+          poetry cache clear --all .
           poetry install
       - name: Run tests with pytest
         run: |
