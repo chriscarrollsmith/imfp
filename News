@@ -1,5 +1,11 @@
 # All updates will be detailed here
 
+## Version 1.1.1
+
+- Updated dependencies
+
+- Fixed a problem with pyproject.toml that was breaking CI/CD
+
 ## Version 1.1.0
 
 - Implemented response mocking during unit tests

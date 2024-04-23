@@ -93,7 +93,7 @@ databases.head()
 
 
 
-This function returns the IMF’s listing of 259 databases available through the API. (In reality, 7 of the listed databases are defunct and not actually available: FAS_2015, GFS01, FM202010, APDREO202010, AFRREO202010, WHDREO202010, BOPAGG_2020.)
+This function returns the IMF’s listing of 259 databases available through the API. (In reality, 8 of the listed databases are defunct and not actually available: FAS_2015, GFS01, FM202010, APDREO202010, AFRREO202010, WHDREO202010, BOPAGG_2020, DOT_2020Q1.)
 
 To view and explore the database list, it’s possible to explore subsets of the data frame by row number with `databases.loc`:
 
@@ -700,4 +700,4 @@ Also note that by default, `imfp` functions will retry any API call rejected for
 
 ## Contributing
 
-I would love to have your help in improving `imfr`. If you encounter a bug while using the library, please open an issue. Alternatively, fix the bug and open a pull request. Thanks in advance for your help!
+I would love to have your help in improving `imfp`. If you encounter a bug while using the library, please open an issue. Alternatively, fix the bug and open a pull request. Thanks in advance for your help!
