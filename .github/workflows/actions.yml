@@ -46,8 +46,10 @@ jobs:
       - name: Install and configure Poetry
         uses: snok/install-poetry@v1
       - name: Publish to PyPi
+        env:
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
         run: |
-          poetry publish --build
+          poetry publish --build -u __token__ -p $PYPI_TOKEN
           if [ $? -ne 0 ]; then
             echo "Warning: Version has not been incremented. No new version published."
           fi

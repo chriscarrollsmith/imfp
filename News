@@ -4,7 +4,11 @@
 
 - Updated dependencies
 
+- Removed deprecated pkg_resources import
+
 - Fixed a problem with pyproject.toml that was breaking CI/CD
+
+- Implemented automated PyPi deployment with GitHub Actions
 
 ## Version 1.1.0
 
