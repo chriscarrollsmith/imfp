@@ -46,8 +46,7 @@ jobs:
         uses: snok/install-poetry@v1
       - name: Format code with black
         run: |
-          black imfp
-          black tests
+          poetry run black .
       - name: Build README.md
         run: |
           poetry run python README_files/render.py
