@@ -1,42 +1,11 @@
-name: build-test
+name: build-test-publish
 
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 
 jobs:
   build:
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.8", "3.12"]
-        poetry-version: [latest]
-        os: [ubuntu-latest]
-    defaults:
-      run:
-        shell: bash
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install and configure Poetry
-        uses: snok/install-poetry@v1
-      - name: Build and install project
-        run: |
-          poetry install
-      - name: Run tests with pytest
-        run: |
-          poetry run pytest --version
-          poetry run pytest tests
-    outputs:
-      matrix: ${{ toJson(matrix) }}
-
-  publish:
-    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -45,6 +14,13 @@ jobs:
           python-version: '3.12'
       - name: Install and configure Poetry
         uses: snok/install-poetry@v1
+      - name: Build and install project
+        run: |
+          poetry build
+          poetry install
+      - name: Run tests with pytest
+        run: |
+          poetry run pytest tests
       - name: Publish to PyPi
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
