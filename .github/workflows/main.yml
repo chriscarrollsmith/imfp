@@ -25,8 +25,6 @@ jobs:
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
         run: |
-          poetry publish --build -u __token__ -p $PYPI_TOKEN
-          if [ $? -ne 0 ]; then
+          if ! poetry publish --build -u __token__ -p $PYPI_TOKEN; then
             echo "::warning::Version has not been incremented. No new version published."
-            exit 0
           fi
