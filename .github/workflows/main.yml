@@ -27,5 +27,6 @@ jobs:
         run: |
           poetry publish --build -u __token__ -p $PYPI_TOKEN
           if [ $? -ne 0 ]; then
-            echo "Warning: Version has not been incremented. No new version published."
+            echo "::warning::Version has not been incremented. No new version published."
+            exit 0
           fi
