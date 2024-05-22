@@ -44,6 +44,9 @@ jobs:
           python-version: '3.12'
       - name: Install and configure Poetry
         uses: snok/install-poetry@v1
+      - name: Install project
+        run: |
+          poetry install
       - name: Format code with black
         run: |
           poetry run black .
