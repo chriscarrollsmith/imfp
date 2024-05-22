@@ -699,6 +699,7 @@ Also note that by default, `imfp` functions will retry any API call rejected for
 
 ## Planned features
 
+- If pyproject.toml version has been incremented, automatically deploy Github release from main with release notes auto-generated from `News` file or PR message
 - Implement automatic build/render of readthedocs documentation with Sphinx
 - Implement automatic build/release/publish of package updates
 - Move response mocking functionality from `_download_parse` to `_imf_get`
@@ -709,4 +710,6 @@ Also note that by default, `imfp` functions will retry any API call rejected for
 
 ## Contributing
 
-I would love to have your help in improving `imfp`. If you encounter a bug while using the library, please open an issue. Alternatively, fix the bug and open a pull request. Thanks in advance for your help!
+I would love to have your help in improving `imfp`. If you encounter a bug while using the library, please open an issue. Alternatively, fix the bug and open a pull request to the `dev` branch. Thanks in advance for your help!
+
+Note to maintainers: To deploy a new version of the package, increment the version number with `poetry version patch` (or `minor`/`major` for larger updates) and push to dev. Github Actions will automatically format the code with black, render the README, and run the unit tests. If the workflow completes successfully, open a PR to main. After merging, the workflow will test again as one last sanity check and then automatically deploy the new version to PyPi. Currently, new Github releases must be created manually, but this will be automated in the future.

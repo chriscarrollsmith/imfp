@@ -1,13 +1,13 @@
-name: build-test
+name: test-format-render
 
 on:
   push:
-    branches: [main]
+    branches: [dev]
   pull_request:
-    branches: [main]
+    branches: [dev]
 
 jobs:
-  build:
+  test:
     strategy:
       fail-fast: false
       matrix:
@@ -25,19 +25,20 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install and configure Poetry
         uses: snok/install-poetry@v1
-      - name: Build and install project
+      - name: Install project
         run: |
           poetry install
       - name: Run tests with pytest
         run: |
-          poetry run pytest --version
           poetry run pytest tests
     outputs:
       matrix: ${{ toJson(matrix) }}
 
-  publish:
-    needs: build
+  render:
+    needs: test
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -45,11 +46,16 @@ jobs:
           python-version: '3.12'
       - name: Install and configure Poetry
         uses: snok/install-poetry@v1
-      - name: Publish to PyPi
-        env:
-          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+      - name: Install project
         run: |
-          poetry publish --build -u __token__ -p $PYPI_TOKEN
-          if [ $? -ne 0 ]; then
-            echo "Warning: Version has not been incremented. No new version published."
-          fi
+          poetry install
+      - name: Format code with black
+        run: |
+          poetry run black .
+      - name: Build README.md
+        run: |
+          poetry run python README_files/render.py
+      - name: Commit and push changes to repository
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'Automated code format and README render'
