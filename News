@@ -6,6 +6,8 @@
 
 - Required Python 3.10 and pandas 2.2 to prevent numpy binary incompatibility error
 
+- Repaired broken tests badge in README.ipynb
+
 ## Version 1.1.1
 
 - Updated dependencies
